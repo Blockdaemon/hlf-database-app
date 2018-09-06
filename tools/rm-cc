@@ -1,0 +1,2 @@
+docker ps -a | grep hlf-database-app | cut -f1 -d " " | xargs docker rm
+docker images -a | grep hlf-database-app | cut -f1 -d " " | xargs docker rmi
