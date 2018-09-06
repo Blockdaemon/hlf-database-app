@@ -27,12 +27,13 @@ func main() {
 		ChannelConfig: config.GetString("ARTIFACTS") + "/" + config.GetString("CHANNEL") + ".channel.tx",
 
 		// Chaincode parameters
-		ChainCodeID:     "hlf-database-app",
-		ChaincodeGoPath: os.Getenv("GOPATH"),
-		ChaincodePath:   "github.com/Blockdaemon/hlf-database-app/chaincode/",
-		OrgAdmin:        "Admin",
-		OrgName:         "org1",
-		ConfigFile:      "config.yaml",
+		ChainCodeID:      "hlf-database-app",
+		ChaincodeGoPath:  os.Getenv("GOPATH"),
+		ChaincodePath:    "github.com/Blockdaemon/hlf-database-app/chaincode/",
+		ChaincodeVersion: "0",
+		OrgAdmin:         "Admin",
+		OrgName:          "org1",
+		ConfigFile:       "config.yaml",
 
 		// User parameters
 		UserName: os.Getenv("USER"),
@@ -50,7 +51,7 @@ func main() {
 	err = fSetup.CreateAndJoinChannel()
 	if err != nil {
 		fmt.Printf("Unable to create and join channel: %v\n", err)
-		return
+		//return
 	}
 
 	// Install the chaincode

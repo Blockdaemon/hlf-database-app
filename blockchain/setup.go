@@ -17,24 +17,25 @@ import (
 
 // FabricSetup implementation
 type FabricSetup struct {
-	ConfigFile      string
-	Domain		string
-	OrgID           string
-	OrdererID       string
-	ChannelID       string
-	ChainCodeID     string
-	initialized     bool
-	ChannelConfig   string
-	ChaincodeGoPath string
-	ChaincodePath   string
-	OrgAdmin        string
-	OrgName         string
-	UserName        string
-	adminIdentity	*msp.SigningIdentity
-	client          *channel.Client
-	admin           *resmgmt.Client
-	sdk             *fabsdk.FabricSDK
-	event           *event.Client
+	ConfigFile       string
+	Domain		 string
+	OrgID            string
+	OrdererID        string
+	ChannelID        string
+	ChainCodeID      string
+	initialized      bool
+	ChannelConfig    string
+	ChaincodeGoPath  string
+	ChaincodePath    string
+	ChaincodeVersion string
+	OrgAdmin         string
+	OrgName          string
+	UserName         string
+	adminIdentity	 *msp.SigningIdentity
+	client           *channel.Client
+	admin            *resmgmt.Client
+	sdk              *fabsdk.FabricSDK
+	event            *event.Client
 }
 
 // Initialize reads the configuration file and sets up the client, chain and event hub
@@ -107,7 +108,7 @@ func (setup *FabricSetup) InstallCC() error {
 	fmt.Println("ccPkg created")
 
 	// Install example cc to org peers
-	installCCReq := resmgmt.InstallCCRequest{Name: setup.ChainCodeID, Path: setup.ChaincodePath, Version: "0", Package: ccPkg}
+	installCCReq := resmgmt.InstallCCRequest{Name: setup.ChainCodeID, Path: setup.ChaincodePath, Version: setup.ChaincodeVersion, Package: ccPkg}
 	_, err = setup.admin.InstallCC(installCCReq, resmgmt.WithRetry(retry.DefaultResMgmtOpts))
 	if err != nil {
 		return errors.WithMessage(err, "failed to install chaincode")
