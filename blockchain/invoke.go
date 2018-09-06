@@ -6,15 +6,13 @@ import (
 	"time"
 )
 
-// Invoke
+// Invoke - set key's value to string
 func (setup *FabricSetup) Invoke(key string, value string) (string, error) {
+	return setup.InvokeRaw(key, []byte(value))
+}
 
-	// Prepare arguments
-	var args []string
-	args = append(args, "invoke")
-	args = append(args, "invoke")
-	args = append(args, key)
-	args = append(args, value)
+// Invoke - set key's value to []byte array
+func (setup *FabricSetup) InvokeRaw(key string, value []byte) (string, error) {
 
 	eventID := "eventInvoke"
 
@@ -29,7 +27,16 @@ func (setup *FabricSetup) Invoke(key string, value string) (string, error) {
 	defer setup.event.Unregister(reg)
 
 	// Create a request (proposal) and send it
-	response, err := setup.client.Execute(channel.Request{ChaincodeID: setup.ChainCodeID, Fcn: args[0], Args: [][]byte{[]byte(args[1]), []byte(args[2]), []byte(args[3])}, TransientMap: transientDataMap})
+	response, err := setup.client.Execute(channel.Request{
+		ChaincodeID: setup.ChainCodeID,
+		Fcn:         "invoke",
+		Args: [][]byte{
+			[]byte("invoke"),
+			[]byte(key),
+			value,
+		},
+		TransientMap: transientDataMap,
+	})
 	if err != nil {
 		return "", fmt.Errorf("failed to execute request: %v", err)
 	}

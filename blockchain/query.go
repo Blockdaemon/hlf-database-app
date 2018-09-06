@@ -5,19 +5,26 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 )
 
-// QueryHello query the chaincode to get the state of hello
+// Query the chaincode to get the value of key
 func (setup *FabricSetup) Query(key string) (string, error) {
+	response, err := setup.QueryRaw(key)
+	return string(response), err
+}
 
-	// Prepare arguments
-	var args []string
-	args = append(args, "invoke")
-	args = append(args, "query")
-	args = append(args, key)
+// Query, but return raw payload
+func (setup *FabricSetup) QueryRaw(key string) ([]byte, error) {
 
-	response, err := setup.client.Query(channel.Request{ChaincodeID: setup.ChainCodeID, Fcn: args[0], Args: [][]byte{[]byte(args[1]), []byte(args[2])}})
+	response, err := setup.client.Query(channel.Request{
+		ChaincodeID: setup.ChainCodeID,
+		Fcn:         "invoke",
+		Args: [][]byte{
+			[]byte("query"),
+			[]byte(key),
+		},
+	})
 	if err != nil {
-		return "", fmt.Errorf("failed to query: %v", err)
+		return nil, fmt.Errorf("failed to query: %v", err)
 	}
 
-	return string(response.Payload), nil
+	return response.Payload, nil
 }
