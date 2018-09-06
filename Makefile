@@ -4,7 +4,7 @@ include config.env
 -include local.env
 
 ifndef GOPATH
-    GOPATH:=/home/$(USER)/go
+    GOPATH:=$(HOME)/go
     export GOPATH
 endif
 
