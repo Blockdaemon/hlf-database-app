@@ -18,7 +18,7 @@ import (
 // FabricSetup implementation
 type FabricSetup struct {
 	ConfigFile       string
-	Domain		 string
+	Domain           string
 	OrgID            string
 	OrdererID        string
 	ChannelID        string
@@ -31,7 +31,7 @@ type FabricSetup struct {
 	OrgAdmin         string
 	OrgName          string
 	UserName         string
-	adminIdentity	 *msp.SigningIdentity
+	adminIdentity    *msp.SigningIdentity
 	client           *channel.Client
 	admin            *resmgmt.Client
 	sdk              *fabsdk.FabricSDK
@@ -126,7 +126,10 @@ func (setup *FabricSetup) InstantiateCC() error {
 		return errors.WithMessage(err, "failed to instantiate the chaincode")
 	}
 	fmt.Println("Chaincode instantiated")
+	return nil
+}
 
+func (setup *FabricSetup) CreateChannelAndEventClients() (err error) { // LOL https://github.com/golang/go/issues/6842
 	// Channel client is used to query and execute transactions
 	clientContext := setup.sdk.ChannelContext(setup.ChannelID, fabsdk.WithUser(setup.UserName))
 	setup.client, err = channel.New(clientContext)
@@ -142,7 +145,7 @@ func (setup *FabricSetup) InstantiateCC() error {
 	}
 	fmt.Println("Event client created")
 
-	fmt.Println("Chaincode Instantiation Successful")
+	fmt.Println("Create channel and event clients successful")
 	return nil
 }
 
