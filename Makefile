@@ -11,19 +11,19 @@ endif
 MAKEFILES:=Makefile config.env $(wildcard local.env)	# only care about local.env if it is there
 
 .PHONY: all
-all: hlf-database-app
+all: hlf-database-app config.yaml
 
 hlf-database-app: FORCE
 	go build
 
 .PHONY: run
-run:	hlf-database-app
+run:	all
 	DOMAIN=$(DOMAIN) CHANNEL=$(CHANNEL) ARTIFACTS=$(ARTIFACTS) ./hlf-database-app
 
 config.yaml: $(MAKEFILES)
 
 # jinja2 rule
-%.yaml: templates/%.yaml.in
+%.yaml: templates/%.yaml.in $(MAKEFILES)
 	NETWORK=$(NETWORK) DOMAIN=$(DOMAIN) CHANNEL=$(CHANNEL) CRYPTO=$(CRYPTO) tools/jinja2-cli.py < $< > $@ || (rm -f $@; false)
 
 .PHONY: clean

@@ -255,6 +255,8 @@ certificateAuthorities:
     httpOptions:
       verify: false
     registrar:
+      # as specified in `fabric-ca-server start -b ...`
+      # (see docker-compose.yaml in hlf-service-network)
       enrollId: admin
       enrollSecret: adminpw
     # [Optional] The optional name of the CA.
