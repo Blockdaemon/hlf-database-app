@@ -13,7 +13,7 @@ MAKEFILES:=Makefile config.env $(wildcard local.env)	# only care about local.env
 .PHONY: all
 all: hlf-database-app
 
-hlf-database-app: $(MAKEFILES) config.yaml
+hlf-database-app: FORCE
 	go build
 
 .PHONY: run

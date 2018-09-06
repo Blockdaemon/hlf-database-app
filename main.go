@@ -13,7 +13,7 @@ func main() {
 	config := new(config.Config)
 	config.DescribeOptionalString("DOMAIN", "The domain to use in CAs", "blockdaemon.io")
 	config.DescribeOptionalString("CHANNEL", "The channel to use", "blockdaemon")
-	config.DescribeOptionalString("ARTIFACTS", "The artifact directory", "artifacts")
+	config.DescribeOptionalString("ARTIFACTS", "The artifact directory", os.Getenv("GOPATH") + "/src/github.com/Blockdaemon/hlf-service-network/artifacts")
 	config.Parse()
 
 	// Definition of the Fabric SDK properties
@@ -42,6 +42,7 @@ func main() {
 	err := fSetup.Initialize()
 	if err != nil {
 		fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
+		return
 	}
 	// Close SDK
 	defer fSetup.CloseSDK()
@@ -50,6 +51,7 @@ func main() {
 	err = fSetup.InstallAndInstantiateCC()
 	if err != nil {
 		fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
+		return
 	}
 
 	// Launch the web application listening
