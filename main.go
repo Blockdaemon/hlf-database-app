@@ -47,8 +47,21 @@ func main() {
 	// Close SDK
 	defer fSetup.CloseSDK()
 
-	// Install and instantiate the chaincode
-	err = fSetup.InstallAndInstantiateCC()
+	err = fSetup.CreateAndJoinChannel()
+	if err != nil {
+		fmt.Printf("Unable to create and join channel: %v\n", err)
+		return
+	}
+
+	// Install the chaincode
+	err = fSetup.InstallCC()
+	if err != nil {
+		fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
+		return
+	}
+
+	// Instantiate the chaincode
+	err = fSetup.InstantiateCC()
 	if err != nil {
 		fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
 		return

@@ -30,6 +30,7 @@ type FabricSetup struct {
 	OrgAdmin        string
 	OrgName         string
 	UserName        string
+	adminIdentity	*msp.SigningIdentity
 	client          *channel.Client
 	admin           *resmgmt.Client
 	sdk             *fabsdk.FabricSDK
@@ -62,7 +63,7 @@ func (setup *FabricSetup) Initialize() error {
 		return errors.WithMessage(err, "failed to create channel management client from Admin identity")
 	}
 	setup.admin = resMgmtClient
-	fmt.Println("Ressource management client created")
+	fmt.Println("Resource management client created")
 
 	// The MSP client allow us to retrieve user information from their identity, like its signing identity which we will need to save the channel
 	mspClient, err := mspclient.New(sdk.Context(), mspclient.WithOrg(setup.OrgName))
@@ -73,7 +74,15 @@ func (setup *FabricSetup) Initialize() error {
 	if err != nil {
 		return errors.WithMessage(err, "failed to get admin signing identity")
 	}
-	req := resmgmt.SaveChannelRequest{ChannelID: setup.ChannelID, ChannelConfigPath: setup.ChannelConfig, SigningIdentities: []msp.SigningIdentity{adminIdentity}}
+	setup.adminIdentity = &adminIdentity
+
+	fmt.Println("Initialization Successful")
+	setup.initialized = true
+	return nil
+}
+
+func (setup *FabricSetup) CreateAndJoinChannel() error {
+	req := resmgmt.SaveChannelRequest{ChannelID: setup.ChannelID, ChannelConfigPath: setup.ChannelConfig, SigningIdentities: []msp.SigningIdentity{*setup.adminIdentity}}
 	txID, err := setup.admin.SaveChannel(req, resmgmt.WithOrdererEndpoint(setup.OrdererID))
 	if err != nil || txID.TransactionID == "" {
 		return errors.WithMessage(err, "failed to save channel")
@@ -85,13 +94,10 @@ func (setup *FabricSetup) Initialize() error {
 		return errors.WithMessage(err, "failed to make admin join channel")
 	}
 	fmt.Println("Channel joined")
-
-	fmt.Println("Initialization Successful")
-	setup.initialized = true
 	return nil
 }
 
-func (setup *FabricSetup) InstallAndInstantiateCC() error {
+func (setup *FabricSetup) InstallCC() error {
 
 	// Create the chaincode package that will be sent to the peers
 	ccPkg, err := packager.NewCCPackage(setup.ChaincodePath, setup.ChaincodeGoPath)
@@ -107,7 +113,10 @@ func (setup *FabricSetup) InstallAndInstantiateCC() error {
 		return errors.WithMessage(err, "failed to install chaincode")
 	}
 	fmt.Println("Chaincode installed")
+	return nil
+}
 
+func (setup *FabricSetup) InstantiateCC() error {
 	// Set up chaincode policy
 	ccPolicy := cauthdsl.SignedByAnyMember([]string{setup.OrgName + ".hf." + setup.Domain})
 
@@ -132,7 +141,7 @@ func (setup *FabricSetup) InstallAndInstantiateCC() error {
 	}
 	fmt.Println("Event client created")
 
-	fmt.Println("Chaincode Installation & Instantiation Successful")
+	fmt.Println("Chaincode Instantiation Successful")
 	return nil
 }
 
