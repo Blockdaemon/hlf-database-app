@@ -7,9 +7,10 @@ import (
 
 	"github.com/Blockdaemon/config"
 
-	"github.com/Blockdaemon/hlf-database-app/blockchain"
 	"github.com/Blockdaemon/hlf-webapp/web"
 	"github.com/Blockdaemon/hlf-webapp/web/controllers"
+
+	"github.com/Blockdaemon/hlf-database-app/blockchain"
 )
 
 func InitializeChannelAndCC(fSetup *blockchain.FabricSetup) {
