@@ -16,10 +16,6 @@ all: hlf-database-app config.yaml
 hlf-database-app: FORCE
 	go build
 
-.PHONY: run
-run:	all
-	DOMAIN=$(DOMAIN) CHANNEL=$(CHANNEL) ARTIFACTS=$(ARTIFACTS) ./hlf-database-app
-
 config.yaml: $(MAKEFILES)
 
 # jinja2 rule

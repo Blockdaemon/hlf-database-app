@@ -9,7 +9,38 @@ import (
 	"github.com/Blockdaemon/hlf-database-app/blockchain"
 )
 
-func main() {
+func InitializeChannelAndCC(fSetup *blockchain.FabricSetup) {
+
+	// Any one of these can fail if it was partially completed on last run,
+	// so ignore errors for now, until this code is smarter.
+
+	// FIXME: test if channel is already there and we joined it
+	err := fSetup.CreateAndJoinChannel()
+	if err != nil {
+		fmt.Printf("Unable to create and join channel: %v\n", err)
+	}
+
+	// FIXME: test if CC is already installed
+	err = fSetup.InstallCC()
+	if err != nil {
+		fmt.Printf("Unable to install the chaincode: %v\n", err)
+	}
+
+	// FIXME: test if CC is already instantiated
+	err = fSetup.InstantiateCC()
+	if err != nil {
+		fmt.Printf("Unable to instantiate the chaincode: %v\n", err)
+	}
+}
+
+func Usage() {
+	fmt.Printf("%s: init\n", os.Args[0])
+	fmt.Printf("%s: get <key>\n", os.Args[0])
+	fmt.Printf("%s: set <key> <value>\n", os.Args[0])
+}
+
+func NewSetup() (*blockchain.FabricSetup, error) {
+
 	config := new(config.Config)
 	config.DescribeOptionalString("DOMAIN", "The domain to use in CAs", "blockdaemon.io")
 	config.DescribeOptionalString("CHANNEL", "The channel to use", "blockdaemon")
@@ -42,30 +73,53 @@ func main() {
 	// Initialization of the Fabric SDK from the previously set properties
 	err := fSetup.Initialize()
 	if err != nil {
+		return nil, err
+	}
+
+	return &fSetup, nil
+}
+
+func main() {
+	var getKey, setKey, setValue string
+
+	if (len(os.Args) == 1) {
+		Usage()
+		return
+	}
+
+	fSetup, err := NewSetup()
+	if err != nil {
 		fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
 		return
 	}
+
 	// Close SDK
 	defer fSetup.CloseSDK()
 
-	err = fSetup.CreateAndJoinChannel()
-	if err != nil {
-		fmt.Printf("Unable to create and join channel: %v\n", err)
-		//return
-	}
-
-	// Install the chaincode
-	err = fSetup.InstallCC()
-	if err != nil {
-		fmt.Printf("Unable to install the chaincode: %v\n", err)
-		//return
-	}
-
-	// Instantiate the chaincode
-	err = fSetup.InstantiateCC()
-	if err != nil {
-		fmt.Printf("Unable to instantiate the chaincode: %v\n", err)
-		//return
+	switch (os.Args[1]) {
+	case "init":
+		if (len(os.Args) != 2) {
+			Usage()
+			return
+		}
+		InitializeChannelAndCC(fSetup)
+		return
+	case "get":
+		if (len(os.Args) != 3) {
+			Usage()
+			return
+		}
+		getKey = os.Args[2]
+	case "set":
+		if (len(os.Args) != 4) {
+			Usage()
+			return
+		}
+		setKey = os.Args[2]
+		setValue = os.Args[3]
+	default:
+		Usage()
+		return
 	}
 
 	err = fSetup.CreateChannelAndEventClients()
@@ -74,7 +128,22 @@ func main() {
 		return
 	}
 
-	// Launch the web application listening
+	if getKey != "" {
+		val, err := fSetup.Query(getKey)
+		if err != nil {
+			fmt.Printf("Query '%s' failed: %v\n", getKey, err)
+		} else {
+			fmt.Printf("'%s'='%s'\n", getKey, val)
+		}
+	} else if setKey != "" && setValue != "" {
+		txid, err := fSetup.Invoke(setKey, setValue);
+		if err != nil {
+			fmt.Printf("Invoke '%s'='%s' failed: %v\n", setKey, setValue, err)
+		} else {
+			fmt.Printf("Transaction %s successful\n", txid)
+		}
+	}
+
 	/*
 		app := &controllers.Application{
 			Fabric: &fSetup,
