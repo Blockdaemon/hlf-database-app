@@ -45,18 +45,7 @@ func Usage() {
 	fmt.Printf("%s: webapp\n", os.Args[0])
 }
 
-func NewSetup() (*blockchain.FabricSetup, error) {
-
-	bdsrc := os.Getenv("GOPATH") + "/src/github.com/Blockdaemon"
-	config := new(config.Config)
-	config.DescribeOptionalString("DOMAIN", "The domain to use in CAs", "blockdaemon.io")
-	config.DescribeOptionalString("CHANNEL", "The channel to use", "blockdaemon")
-	config.DescribeOptionalString("ARTIFACTS", "The artifact directory",
-		bdsrc+"/hlf-service-network/artifacts")
-	config.DescribeOptionalString("WEBROOT", "The hlf-webapp directory",
-		bdsrc+"/hlf-webapp")
-	config.DescribeOptionalInt("WEBPORT", "The listen port for hlf-webapp", 3001)
-	config.Parse()
+func NewSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 
 	// Definition of the Fabric SDK properties
 	fSetup := blockchain.FabricSetup{
@@ -79,10 +68,6 @@ func NewSetup() (*blockchain.FabricSetup, error) {
 
 		// User parameters
 		UserName: "Admin",
-
-		// Web app setup
-		WebRoot: config.GetString("WEBROOT"),
-		WebPort: config.GetInt("WEBPORT"),
 	}
 
 	// Initialization of the Fabric SDK from the previously set properties
@@ -103,7 +88,18 @@ func main() {
 		return
 	}
 
-	fSetup, err := NewSetup()
+	bdsrc := os.Getenv("GOPATH") + "/src/github.com/Blockdaemon"
+	config := new(config.Config)
+	config.DescribeOptionalString("DOMAIN", "The domain to use in CAs", "blockdaemon.io")
+	config.DescribeOptionalString("CHANNEL", "The channel to use", "blockdaemon")
+	config.DescribeOptionalString("ARTIFACTS", "The artifact directory",
+		bdsrc+"/hlf-service-network/artifacts")
+	config.DescribeOptionalString("WEBROOT", "The hlf-webapp directory",
+		bdsrc+"/hlf-webapp")
+	config.DescribeOptionalInt("WEBPORT", "The listen port for hlf-webapp", 3001)
+	config.Parse()
+
+	fSetup, err := NewSetup(config)
 	if err != nil {
 		fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
 		return
@@ -196,9 +192,13 @@ func main() {
 			}
 		}
 	} else if os.Args[1] == "webapp" {
+		// Web app setup
 		app := &controllers.Application{
-			Fabric: fSetup,
+			Fabric:  fSetup,
+			WebRoot: config.GetString("WEBROOT"),
+			WebPort: config.GetInt("WEBPORT"),
 		}
+		// GO GO GO!
 		web.Serve(app)
 	} else {
 		Usage()
