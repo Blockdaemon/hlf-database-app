@@ -28,12 +28,6 @@ func (t *DatabaseChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		return shim.Error("Unknown function call")
 	}
 
-	// Put in the ledger the key/value hello/world
-	err := stub.PutState("hello", []byte("world"))
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
 	// Return a successful message
 	return shim.Success(nil)
 }
