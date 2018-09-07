@@ -19,8 +19,8 @@ make
 ```
 ```
 ./app store <sample-file>
-./app fetch <sample-file> <out>
-diff sample-file out
+./app fetch <sample-file> out
+diff <sample-file> out
 ```
 
 # To clear out old chaincode
