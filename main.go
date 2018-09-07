@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"io/ioutil"
+	"os"
 
 	"github.com/Blockdaemon/config"
 
@@ -160,7 +160,7 @@ func main() {
 		} else {
 			fmt.Printf("Transaction %s successful\n", txid)
 		}
-	} else if storeKey != "" && filename !="" {
+	} else if storeKey != "" && filename != "" {
 		val, err := ioutil.ReadFile(filename)
 		if err != nil {
 			fmt.Printf("Failed to read '%s': %v\n", filename, err)
@@ -172,7 +172,7 @@ func main() {
 				fmt.Printf("Transaction %s successful\n", txid)
 			}
 		}
-	} else if fetchKey != "" && filename !="" {
+	} else if fetchKey != "" && filename != "" {
 		val, err := fSetup.QueryRaw(fetchKey)
 		if err != nil {
 			fmt.Printf("QueryRaw '%s' failed: %v\n", fetchKey, err)
