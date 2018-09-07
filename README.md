@@ -4,11 +4,20 @@ Skeleton for building a Hyperledger Fabric database app
 # QUICKSTART
 
 * Follow [hlf-service-network QUICKSTART instructions](https://github.com/Blockdaemon/hlf-service-network/blob/master/README.md)
+* Build the code
 ```
 make
+```
+* Install the chaincode (only have to do this once)
+```
 ./app init
+```
+* Some things you can do
+```
 ./app set hello world
 ./app get hello
+```
+```
 ./app store <sample-file>
 ./app fetch <sample-file> <out>
 diff sample-file out
