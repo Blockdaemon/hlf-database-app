@@ -8,15 +8,26 @@ Skeleton for building a Hyperledger Fabric database app
 ```
 make
 ```
+
 * Install the chaincode (only have to do this once)
 ```
 ./app init
 ```
-* Some things you can do
+
+## Some things you can do
+### Start up a webapp
+```
+./app webapp
+```
+It should be visible here: [http://localhost:3001](http://localhost:3001/)
+
+### Set `hello` to a value, and retrieve it
 ```
 ./app set hello world
 ./app get hello
 ```
+
+### Store a file and retrieve it
 ```
 ./app store <key> <sample-file>
 ./app fetch <key> out

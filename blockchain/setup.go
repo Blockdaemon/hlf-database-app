@@ -31,6 +31,8 @@ type FabricSetup struct {
 	OrgAdmin         string
 	OrgName          string
 	UserName         string
+	WebRoot          string
+	WebPort          int
 	adminIdentity    *msp.SigningIdentity
 	client           *channel.Client
 	admin            *resmgmt.Client
