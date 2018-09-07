@@ -10,8 +10,10 @@ endif
 
 MAKEFILES:=Makefile config.env $(wildcard local.env)	# only care about local.env if it is there
 
-.PHONY: all
+.PHONY: all fmt
 all: hlf-database-app config.yaml
+fmt:
+	gofmt -w $(wildcard *.go */*.go)
 
 hlf-database-app: FORCE
 	go build
