@@ -3,7 +3,7 @@ Skeleton for building a Hyperledger Fabric database app
 
 # QUICKSTART
 
-* Follow [hlf-service-network QUICKSTART instructions](https://github.com/Blockdaemon/hlf-service-network/blob/master/README.md)
+* Follow [hlf-service-network QUICKSTART instructions](https://github.com/Blockdaemon/hlf-service-network/blob/master/README.md#quickstart)
 * Build the code
 ```
 make
@@ -18,8 +18,8 @@ make
 ./app get hello
 ```
 ```
-./app store <sample-file>
-./app fetch <sample-file> out
+./app store <key> <sample-file>
+./app fetch <key> out
 diff <sample-file> out
 ```
 
@@ -31,6 +31,7 @@ popd
 . tools/rm-cc
 ```
 
+# References
 Based on [this tutorial](https://chainhero.io/2018/03/tutorial-build-blockchain-app-2/)
 
 Requires [a service network](https://github.com/Blockdaemon/hlf-service-network)
