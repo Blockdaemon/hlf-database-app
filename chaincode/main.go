@@ -72,7 +72,7 @@ func (t *DatabaseChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 }
 
 // query
-// Every readonly functions in the ledger will be here
+// Every readonly function in the ledger will arrive here via Query()
 func (t *DatabaseChaincode) query(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println("########### DatabaseChaincode query ###########")
 
@@ -93,7 +93,7 @@ func (t *DatabaseChaincode) query(stub shim.ChaincodeStubInterface, args []strin
 }
 
 // invoke
-// Every functions that read and write in the ledger will be here
+// Every function that read and write in the ledger arrive here via Invoke()
 func (t *DatabaseChaincode) invoke(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println("########### DatabaseChaincode invoke ###########")
 
