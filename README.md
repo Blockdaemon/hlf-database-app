@@ -6,6 +6,7 @@ Skeleton for building a Hyperledger Fabric database app
 * Follow [hlf-service-network QUICKSTART instructions](https://github.com/Blockdaemon/hlf-service-network/blob/master/README.md#quickstart)
 * Build the code
 ```
+go get
 make
 ```
 
