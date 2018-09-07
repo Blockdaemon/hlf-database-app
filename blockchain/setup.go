@@ -52,7 +52,7 @@ func (setup *FabricSetup) Initialize() error {
 		return errors.WithMessage(err, "failed to create SDK")
 	}
 	setup.sdk = sdk
-	fmt.Println("SDK created")
+	//fmt.Println("SDK created")
 
 	// The resource management client is responsible for managing channels (create/update channel)
 	resourceManagerClientContext := setup.sdk.Context(fabsdk.WithUser(setup.OrgAdmin), fabsdk.WithOrg(setup.OrgName))
@@ -64,7 +64,7 @@ func (setup *FabricSetup) Initialize() error {
 		return errors.WithMessage(err, "failed to create channel management client from Admin identity")
 	}
 	setup.admin = resMgmtClient
-	fmt.Println("Resource management client created")
+	//fmt.Println("Resource management client created")
 
 	// The MSP client allow us to retrieve user information from their identity, like its signing identity which we will need to save the channel
 	mspClient, err := mspclient.New(sdk.Context(), mspclient.WithOrg(setup.OrgName))
@@ -77,7 +77,7 @@ func (setup *FabricSetup) Initialize() error {
 	}
 	setup.adminIdentity = &adminIdentity
 
-	fmt.Println("Initialization Successful")
+	//fmt.Println("Initialization Successful")
 	setup.initialized = true
 	return nil
 }
@@ -136,16 +136,16 @@ func (setup *FabricSetup) CreateChannelAndEventClients() (err error) { // LOL ht
 	if err != nil {
 		return errors.WithMessage(err, "failed to create new channel client")
 	}
-	fmt.Println("Channel client created")
+	//fmt.Println("Channel client created")
 
 	// Creation of the client which will enables access to our channel events
 	setup.event, err = event.New(clientContext)
 	if err != nil {
 		return errors.WithMessage(err, "failed to create new event client")
 	}
-	fmt.Println("Event client created")
+	//fmt.Println("Event client created")
 
-	fmt.Println("Create channel and event clients successful")
+	//fmt.Println("Create channel and event clients successful")
 	return nil
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"io/ioutil"
 
 	"github.com/Blockdaemon/config"
 
@@ -37,6 +38,8 @@ func Usage() {
 	fmt.Printf("%s: init\n", os.Args[0])
 	fmt.Printf("%s: get <key>\n", os.Args[0])
 	fmt.Printf("%s: set <key> <value>\n", os.Args[0])
+	fmt.Printf("%s: store <key> <infile>\n", os.Args[0])
+	fmt.Printf("%s: fetch <key> <outfile>\n", os.Args[0])
 }
 
 func NewSetup() (*blockchain.FabricSetup, error) {
@@ -81,8 +84,9 @@ func NewSetup() (*blockchain.FabricSetup, error) {
 
 func main() {
 	var getKey, setKey, setValue string
+	var storeKey, fetchKey, filename string
 
-	if (len(os.Args) == 1) {
+	if len(os.Args) == 1 {
 		Usage()
 		return
 	}
@@ -96,27 +100,41 @@ func main() {
 	// Close SDK
 	defer fSetup.CloseSDK()
 
-	switch (os.Args[1]) {
+	switch os.Args[1] {
 	case "init":
-		if (len(os.Args) != 2) {
+		if len(os.Args) != 2 {
 			Usage()
 			return
 		}
 		InitializeChannelAndCC(fSetup)
 		return
 	case "get":
-		if (len(os.Args) != 3) {
+		if len(os.Args) != 3 {
 			Usage()
 			return
 		}
 		getKey = os.Args[2]
 	case "set":
-		if (len(os.Args) != 4) {
+		if len(os.Args) != 4 {
 			Usage()
 			return
 		}
 		setKey = os.Args[2]
 		setValue = os.Args[3]
+	case "store":
+		if len(os.Args) != 4 {
+			Usage()
+			return
+		}
+		storeKey = os.Args[2]
+		filename = os.Args[3]
+	case "fetch":
+		if len(os.Args) != 4 {
+			Usage()
+			return
+		}
+		fetchKey = os.Args[2]
+		filename = os.Args[3]
 	default:
 		Usage()
 		return
@@ -136,12 +154,36 @@ func main() {
 			fmt.Printf("'%s'='%s'\n", getKey, val)
 		}
 	} else if setKey != "" && setValue != "" {
-		txid, err := fSetup.Invoke(setKey, setValue);
+		txid, err := fSetup.Invoke(setKey, setValue)
 		if err != nil {
 			fmt.Printf("Invoke '%s'='%s' failed: %v\n", setKey, setValue, err)
 		} else {
 			fmt.Printf("Transaction %s successful\n", txid)
 		}
+	} else if storeKey != "" && filename !="" {
+		val, err := ioutil.ReadFile(filename)
+		if err != nil {
+			fmt.Printf("Failed to read '%s': %v\n", filename, err)
+		} else {
+			txid, err := fSetup.InvokeRaw(storeKey, val)
+			if err != nil {
+				fmt.Printf("InvokeRaw '%s'= contents of '%s' failed: %v\n", storeKey, filename, err)
+			} else {
+				fmt.Printf("Transaction %s successful\n", txid)
+			}
+		}
+	} else if fetchKey != "" && filename !="" {
+		val, err := fSetup.QueryRaw(fetchKey)
+		if err != nil {
+			fmt.Printf("QueryRaw '%s' failed: %v\n", fetchKey, err)
+		} else {
+			err := ioutil.WriteFile(filename, val, os.FileMode(int(0644)))
+			if err != nil {
+				fmt.Printf("Failed to write '%s': %v\n", filename, err)
+			}
+		}
+	} else {
+		Usage()
 	}
 
 	/*
