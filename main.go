@@ -13,7 +13,7 @@ import (
 	"github.com/Blockdaemon/hlf-database-app/blockchain"
 )
 
-func InitializeChannelAndCC(fSetup *blockchain.FabricSetup) {
+func InitializeChannelAndCC(fSetup *blockchain.FabricSetup, force bool) {
 
 	// Any one of these can fail if it was partially completed on last run,
 	// so ignore errors for now, until this code is smarter.
@@ -22,18 +22,30 @@ func InitializeChannelAndCC(fSetup *blockchain.FabricSetup) {
 	err := fSetup.CreateAndJoinChannel()
 	if err != nil {
 		fmt.Printf("Unable to create and join channel: %v\n", err)
+		if !force {
+		    return
+		}
+		fmt.Printf("IGNORING create/join channel error\n")
 	}
 
 	// FIXME: test if CC is already installed
 	err = fSetup.InstallCC()
 	if err != nil {
 		fmt.Printf("Unable to install the chaincode: %v\n", err)
+		fmt.Printf("IGNORING install CC eror\n")
+		if !force {
+		    return
+		}
 	}
 
 	// FIXME: test if CC is already instantiated
 	err = fSetup.InstantiateCC()
 	if err != nil {
 		fmt.Printf("Unable to instantiate the chaincode: %v\n", err)
+		fmt.Printf("IGNORING instantiate CC eror\n")
+		if !force {
+		    return
+		}
 	}
 }
 
@@ -115,7 +127,7 @@ func main() {
 			Usage()
 			return
 		}
-		InitializeChannelAndCC(fSetup)
+		InitializeChannelAndCC(fSetup, false)
 		return
 	case "get":
 		if len(os.Args) != 3 {
