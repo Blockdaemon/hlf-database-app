@@ -23,7 +23,7 @@ func InitializeChannelAndCC(fSetup *blockchain.FabricSetup, force bool) {
 	if err != nil {
 		fmt.Printf("Unable to create and join channel: %v\n", err)
 		if !force {
-		    return
+			return
 		}
 		fmt.Printf("IGNORING create/join channel error\n")
 	}
@@ -32,20 +32,16 @@ func InitializeChannelAndCC(fSetup *blockchain.FabricSetup, force bool) {
 	err = fSetup.InstallCC()
 	if err != nil {
 		fmt.Printf("Unable to install the chaincode: %v\n", err)
-		fmt.Printf("IGNORING install CC eror\n")
 		if !force {
-		    return
+			return
 		}
+		fmt.Printf("IGNORING install CC eror\n")
 	}
 
 	// FIXME: test if CC is already instantiated
 	err = fSetup.InstantiateCC()
 	if err != nil {
 		fmt.Printf("Unable to instantiate the chaincode: %v\n", err)
-		fmt.Printf("IGNORING instantiate CC eror\n")
-		if !force {
-		    return
-		}
 	}
 }
 
@@ -63,8 +59,9 @@ func NewSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 	// Definition of the Fabric SDK properties
 	fSetup := blockchain.FabricSetup{
 		// Network parameters
+		//FIXME: pull these from config?
 		Domain:    config.GetString("DOMAIN"),
-		OrdererID: "orderer.hf." + config.GetString("DOMAIN"),
+		OrdererID: "orderer0.hf." + config.GetString("DOMAIN"),
 
 		// Channel parameters
 		ChannelID:     config.GetString("CHANNEL"),
@@ -127,7 +124,7 @@ func main() {
 			Usage()
 			return
 		}
-		InitializeChannelAndCC(fSetup, false)
+		InitializeChannelAndCC(fSetup, true)
 		return
 	case "get":
 		if len(os.Args) != 3 {

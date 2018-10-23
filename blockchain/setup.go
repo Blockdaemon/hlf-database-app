@@ -2,6 +2,8 @@ package blockchain
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/event"
 	mspclient "github.com/hyperledger/fabric-sdk-go/pkg/client/msp"
@@ -32,10 +34,10 @@ type FabricSetup struct {
 	OrgName          string
 	UserName         string
 
+	sdk           *fabsdk.FabricSDK
+	resClient     *resmgmt.Client
 	adminIdentity *msp.SigningIdentity
 	client        *channel.Client
-	admin         *resmgmt.Client
-	sdk           *fabsdk.FabricSDK
 	event         *event.Client
 }
 
@@ -64,7 +66,7 @@ func (setup *FabricSetup) Initialize() error {
 	if err != nil {
 		return errors.WithMessage(err, "failed to create channel management client from Admin identity")
 	}
-	setup.admin = resMgmtClient
+	setup.resClient = resMgmtClient
 	//fmt.Println("Resource management client created")
 
 	// The MSP client allow us to retrieve user information from their identity, like its signing identity which we will need to save the channel
@@ -85,14 +87,14 @@ func (setup *FabricSetup) Initialize() error {
 
 func (setup *FabricSetup) CreateAndJoinChannel() error {
 	req := resmgmt.SaveChannelRequest{ChannelID: setup.ChannelID, ChannelConfigPath: setup.ChannelConfig, SigningIdentities: []msp.SigningIdentity{*setup.adminIdentity}}
-	txID, err := setup.admin.SaveChannel(req, resmgmt.WithOrdererEndpoint(setup.OrdererID))
+	txID, err := setup.resClient.SaveChannel(req, resmgmt.WithOrdererEndpoint(setup.OrdererID))
 	if err != nil || txID.TransactionID == "" {
 		return errors.WithMessage(err, "failed to save channel")
 	}
 	fmt.Println("Channel created")
 
 	// Make admin user join the previously created channel
-	if err = setup.admin.JoinChannel(setup.ChannelID, resmgmt.WithRetry(retry.DefaultResMgmtOpts), resmgmt.WithOrdererEndpoint(setup.OrdererID)); err != nil {
+	if err = setup.resClient.JoinChannel(setup.ChannelID, resmgmt.WithRetry(retry.DefaultResMgmtOpts), resmgmt.WithOrdererEndpoint(setup.OrdererID)); err != nil {
 		return errors.WithMessage(err, "failed to make admin join channel")
 	}
 	fmt.Println("Channel joined")
@@ -110,7 +112,7 @@ func (setup *FabricSetup) InstallCC() error {
 
 	// Install example cc to org peers
 	installCCReq := resmgmt.InstallCCRequest{Name: setup.ChainCodeID, Path: setup.ChaincodePath, Version: setup.ChaincodeVersion, Package: ccPkg}
-	_, err = setup.admin.InstallCC(installCCReq, resmgmt.WithRetry(retry.DefaultResMgmtOpts))
+	_, err = setup.resClient.InstallCC(installCCReq, resmgmt.WithRetry(retry.DefaultResMgmtOpts))
 	if err != nil {
 		return errors.WithMessage(err, "failed to install chaincode")
 	}
@@ -121,9 +123,26 @@ func (setup *FabricSetup) InstallCC() error {
 func (setup *FabricSetup) InstantiateCC() error {
 	// Set up chaincode policy
 	ccPolicy := cauthdsl.SignedByAnyMember([]string{setup.OrgName + ".hf." + setup.Domain})
+	req := resmgmt.InstantiateCCRequest{
+		Name:    setup.ChainCodeID,
+		Path:    setup.ChaincodeGoPath,
+		Version: "0",
+		Args:    [][]byte{[]byte("init")},
+		Policy:  ccPolicy,
+		//CollConfig:	collConfig
+	}
 
-	resp, err := setup.admin.InstantiateCC(setup.ChannelID, resmgmt.InstantiateCCRequest{Name: setup.ChainCodeID, Path: setup.ChaincodeGoPath, Version: "0", Args: [][]byte{[]byte("init")}, Policy: ccPolicy})
+	resp, err := setup.resClient.InstantiateCC(setup.ChannelID, req)
 	if err != nil || resp.TransactionID == "" {
+		// Seriously, hyperledger?
+		if strings.Contains(err.Error(), "chaincode exists "+setup.ChainCodeID) {
+			fmt.Println("Chaincode already instantiated")
+			return nil
+		}
+		if strings.Contains(err.Error(), "chaincode with name '"+setup.ChainCodeID+"' already exists") {
+			fmt.Println("Chaincode already instantiated")
+			return nil
+		}
 		return errors.WithMessage(err, "failed to instantiate the chaincode")
 	}
 	fmt.Println("Chaincode instantiated")
