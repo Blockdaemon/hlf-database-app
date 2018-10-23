@@ -18,20 +18,20 @@ client:
 
   # Global configuration for peer, event service and orderer timeouts
   # if this this section is omitted, then default values will be used (same values as below)
-#  peer:
-#    timeout:
-#      connection: 10s
-#      response: 180s
-#      discovery:
-#        # Expiry period for discovery service greylist filter
-#        # The channel client will greylist peers that are found to be offline
-#        # to prevent re-selecting them in subsequent retries.
-#        # This interval will define how long a peer is greylisted
-#        greylistExpiry: 10s
-#  eventService:
-#    # Event service type (optional). If not specified then the type is automatically
-#    # determined from channel capabilities.
-#    type: (deliver|eventhub)
+# peer:
+#   timeout:
+#     connection: 10s
+#     response: 180s
+#     discovery:
+        # Expiry period for discovery service greylist filter
+        # The channel client will greylist peers that are found to be offline
+        # to prevent re-selecting them in subsequent retries.
+        # This interval will define how long a peer is greylisted
+#       greylistExpiry: 10s
+# eventService:
+    # Event service type (optional). If not specified then the type is automatically
+    # determined from channel capabilities.
+#   type: (deliver|eventhub)
     # the below timeouts are commented out to use the default values that are found in
     # "pkg/fab/endpointconfig.go"
     # the client is free to override the default values by uncommenting and resetting
@@ -73,21 +73,21 @@ client:
    # BCCSP config for the client. Used by GO SDK.
   BCCSP:
     security:
-     enabled: true
+#    enabled: true
      default:
       provider: "SW"
      hashAlgorithm: "SHA2"
-     softVerify: true
+#    softVerify: true
      level: 256
 
-  tlsCerts:
+# tlsCerts:
     # [Optional]. Use system certificate pool when connecting to peers, orderers (for negotiating TLS) Default: false
-    systemCertPool: false
+#   systemCertPool: false
 
     # [Optional]. Client key and cert for TLS handshake with peers and orderers
-    client:
-      keyfile:
-      certfile:
+#   client:
+#     keyfile:
+#     certfile:
 
 #
 # [Optional]. But most apps would have this section so that channel objects can be constructed
@@ -128,24 +128,28 @@ channels:
         eventSource: true
 
       peer1.org1.hf.{{env['DOMAIN'] or "local"}}:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
 
-    policies:
+#   policies:
       #[Optional] options for retrieving channel configuration blocks
-      queryChannelConfig:
+#     queryChannelConfig:
         #[Optional] min number of success responses (from targets/peers)
-        minResponses: 1
+#       minResponses: 1
         #[Optional] channel config will be retrieved for these number of random targets
-        maxTargets: 1
+#       maxTargets: 1
         #[Optional] retry options for query config block
-        retryOpts:
+#       retryOpts:
           #[Optional] number of retry attempts
-          attempts: 5
+#         attempts: 5
           #[Optional] the back off interval for the first retry attempt
-          initialBackoff: 500ms
+#         initialBackoff: 500ms
           #[Optional] the maximum back off interval for any retry attempt
-          maxBackoff: 5s
+#         maxBackoff: 5s
           #[Optional] he factor by which the initial back off period is exponentially incremented
-          backoffFactor: 2.0
+#         backoffFactor: 2.0
 
 
 #
@@ -183,22 +187,22 @@ organizations:
 # SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
 #
 orderers:
-  orderer.hf.{{env['DOMAIN'] or "local"}}:
-    url: localhost:7050
+  orderer0.hf.{{env['DOMAIN'] or "local"}}:
+#   url: localhost:7050
 
     # these are standard properties defined by the gRPC library
     # they will be passed in as-is to gRPC client constructor
     grpcOptions:
-      ssl-target-name-override: orderer.hf.{{env['DOMAIN'] or "local"}}
+      ssl-target-name-override: orderer0.hf.{{env['DOMAIN'] or "local"}}
       # These parameters should be set in coordination with the keepalive policy on the server,
       # as incompatible settings can result in closing of connection.
       # When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
-      keep-alive-time: 0s
-      keep-alive-timeout: 20s
-      keep-alive-permit: false
-      fail-fast: false
+#     keep-alive-time: 0s
+#     keep-alive-timeout: 20s
+#     keep-alive-permit: false
+#     fail-fast: false
       # allow-insecure will be taken into consideration if address has no protocol defined, if true then grpc or else grpcs
-      allow-insecure: false
+#     allow-insecure: false
 
     tlsCACerts:
       # Certificate location absolute path
@@ -210,21 +214,21 @@ orderers:
 peers:
   peer0.org1.hf.{{env['DOMAIN'] or "local"}}:
     # this URL is used to send endorsement and query requests
-    url: localhost:7051
+#   url: localhost:7051
     # eventUrl is only needed when using eventhub (default is delivery service)
-    eventUrl: localhost:7053
+#   eventUrl: localhost:7053
 
     grpcOptions:
       ssl-target-name-override: peer0.org1.hf.{{env['DOMAIN'] or "local"}}
       # These parameters should be set in coordination with the keepalive policy on the server,
       # as incompatible settings can result in closing of connection.
       # When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
-      keep-alive-time: 0s
-      keep-alive-timeout: 20s
-      keep-alive-permit: false
-      fail-fast: false
+#     keep-alive-time: 0s
+#     keep-alive-timeout: 20s
+#     keep-alive-permit: false
+#     fail-fast: false
       # allow-insecure will be taken into consideration if address has no protocol defined, if true then grpc or else grpcs
-      allow-insecure: false
+#     allow-insecure: false
 
     tlsCACerts:
       # Certificate location absolute path
@@ -232,21 +236,21 @@ peers:
 
   peer1.org1.hf.{{env['DOMAIN'] or "local"}}:
     # this URL is used to send endorsement and query requests
-    url: localhost:8051
+#   url: localhost:8051
     # eventUrl is only needed when using eventhub (default is delivery service)
-    eventUrl: localhost:8053
+#   eventUrl: localhost:8053
 
     grpcOptions:
       ssl-target-name-override: peer1.org1.hf.{{env['DOMAIN'] or "local"}}
       # These parameters should be set in coordination with the keepalive policy on the server,
       # as incompatible settings can result in closing of connection.
       # When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
-      keep-alive-time: 0s
-      keep-alive-timeout: 20s
-      keep-alive-permit: false
-      fail-fast: false
+#     keep-alive-time: 0s
+#     keep-alive-timeout: 20s
+#     keep-alive-permit: false
+#     fail-fast: false
       # allow-insecure will be taken into consideration if address has no protocol defined, if true then grpc or else grpcs
-      allow-insecure: false
+#     allow-insecure: false
 
     tlsCACerts:
       # Certificate location absolute path
@@ -259,7 +263,7 @@ peers:
 #
 certificateAuthorities:
   ca.org1.hf.{{env['DOMAIN'] or "local"}}:
-    url: http://localhost:7054
+#   url: http://localhost:7054
     # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
     # needed to enroll and invoke new users.
     httpOptions:
@@ -290,10 +294,10 @@ entityMatchers:
       mappedHost: peer1.org1.hf.{{env['DOMAIN'] or "local"}}
 
   orderer:
-    - pattern: (\w*)orderer.hf.{{env['DOMAIN'] or "local"}}(\w*)
+    - pattern: (\w*)orderer0.hf.{{env['DOMAIN'] or "local"}}(\w*)
       urlSubstitutionExp: localhost:7050
-      sslTargetOverrideUrlSubstitutionExp: orderer.hf.{{env['DOMAIN'] or "local"}}
-      mappedHost: orderer.hf.{{env['DOMAIN'] or "local"}}
+      sslTargetOverrideUrlSubstitutionExp: orderer0.hf.{{env['DOMAIN'] or "local"}}
+      mappedHost: orderer0.hf.{{env['DOMAIN'] or "local"}}
 
   certificateAuthorities:
     - pattern: (\w*)ca.org1.hf.{{env['DOMAIN'] or "local"}}(\w*)
