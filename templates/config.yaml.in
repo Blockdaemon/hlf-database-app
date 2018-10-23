@@ -207,6 +207,7 @@ orderers:
     tlsCACerts:
       # Certificate location absolute path
       path: {{env['CRYPTO']}}/ordererOrganizations/hf.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.hf.{{env['DOMAIN'] or "local"}}-cert.pem
+
 #
 # List of peers to send various requests to, including endorsement, query
 # and event listener registration.

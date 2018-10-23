@@ -59,7 +59,6 @@ func NewSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 	// Definition of the Fabric SDK properties
 	fSetup := blockchain.FabricSetup{
 		// Network parameters
-		//FIXME: pull these from config?
 		Domain:    config.GetString("DOMAIN"),
 		OrdererID: "orderer0.hf." + config.GetString("DOMAIN"),
 
