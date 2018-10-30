@@ -122,7 +122,7 @@ func (setup *FabricSetup) InstallCC() error {
 
 func (setup *FabricSetup) InstantiateCC() error {
 	// Set up chaincode policy
-	ccPolicy := cauthdsl.SignedByAnyMember([]string{setup.OrgName + ".hf." + setup.Domain})
+	ccPolicy := cauthdsl.SignedByAnyMember([]string{setup.OrgName + ".hlf." + setup.Domain})
 	req := resmgmt.InstantiateCCRequest{
 		Name:    setup.ChainCodeID,
 		Path:    setup.ChaincodeGoPath,

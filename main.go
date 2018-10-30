@@ -60,7 +60,7 @@ func NewSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 	fSetup := blockchain.FabricSetup{
 		// Network parameters
 		Domain:    config.GetString("DOMAIN"),
-		OrdererID: "orderer0.hf." + config.GetString("DOMAIN"),
+		OrdererID: "orderer0.hlf." + config.GetString("DOMAIN"),
 
 		// Channel parameters
 		ChannelID:     config.GetString("CHANNEL"),
