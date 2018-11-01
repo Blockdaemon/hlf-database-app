@@ -136,16 +136,16 @@ func (setup *FabricSetup) InstantiateCC() error {
 	if err != nil || resp.TransactionID == "" {
 		// Seriously, hyperledger?
 		if strings.Contains(err.Error(), "chaincode exists "+setup.ChainCodeID) {
-			fmt.Println("Chaincode already instantiated")
+			fmt.Println("Chaincode already instantiated on channel "+setup.ChannelID)
 			return nil
 		}
 		if strings.Contains(err.Error(), "chaincode with name '"+setup.ChainCodeID+"' already exists") {
-			fmt.Println("Chaincode already instantiated")
+			fmt.Println("Chaincode already instantiated on channel "+setup.ChannelID)
 			return nil
 		}
-		return errors.WithMessage(err, "failed to instantiate the chaincode")
+		return errors.WithMessage(err, "failed to instantiate the chaincode on channel "+setup.ChannelID)
 	}
-	fmt.Println("Chaincode instantiated")
+	fmt.Println("Chaincode instantiated on channel "+setup.ChannelID)
 	return nil
 }
 
