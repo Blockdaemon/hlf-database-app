@@ -24,8 +24,8 @@ func (t *DatabaseChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	function, _ := stub.GetFunctionAndParameters()
 
 	// Check if the request is the init function
-	if function != "init" {
-		return shim.Error("Unknown function call")
+	if function != "" && function != "init" {
+		return shim.Error(fmt.Sprintf("Unknown function call '%s'", function))
 	}
 
 	// Return a successful message
