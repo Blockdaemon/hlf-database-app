@@ -30,4 +30,9 @@ clean:
 	rm -f config.yaml
 	rm -f hlf-database-app
 
+.PHONY: clean-cc
+clean-cc:
+	docker ps -a | grep "chaincode -peer" | cut -f 1 -d " " | xargs -r docker rm
+	docker image ls | grep "chaincode -peer" | cut -f 1 -d " " | xargs -r docker rmi
+
 .PHONY: FORCE
