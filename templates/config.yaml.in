@@ -107,7 +107,7 @@ channels:
 
     # Required. list of peers from participating orgs
     peers:
-      peer0.org1.hlf.{{env['DOMAIN'] or "local"}}:
+      peer0.org1.{{env['DOMAIN'] or "local"}}:
         # [Optional]. will this peer be sent transaction proposals for endorsement? The peer must
         # have the chaincode installed. The app can also use this property to decide which peers
         # to send the chaincode install request. Default: true
@@ -127,7 +127,7 @@ channels:
         # Default: true
         eventSource: true
 
-      peer1.org1.hlf.{{env['DOMAIN'] or "local"}}:
+      peer1.org1.{{env['DOMAIN'] or "local"}}:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -157,11 +157,11 @@ channels:
 #
 organizations:
   org1:
-    mspid: org1.hlf.{{env['DOMAIN'] or "local"}}
-    cryptoPath: peerOrganizations/org1.hlf.{{env['DOMAIN'] or "local"}}/users/{userName}@org1.hlf.{{env['DOMAIN'] or "local"}}/msp
+    mspid: org1.{{env['DOMAIN'] or "local"}}
+    cryptoPath: peerOrganizations/org1.{{env['DOMAIN'] or "local"}}/users/{userName}@org1.{{env['DOMAIN'] or "local"}}/msp
     peers:
-      - peer0.org1.hlf.{{env['DOMAIN'] or "local"}}
-      - peer1.org1.hlf.{{env['DOMAIN'] or "local"}}
+      - peer0.org1.{{env['DOMAIN'] or "local"}}
+      - peer1.org1.{{env['DOMAIN'] or "local"}}
 
     # [Optional]. Certificate Authorities issue certificates for identification purposes in a Fabric based
     # network. Typically certificates provisioning is done in a separate process outside of the
@@ -169,17 +169,17 @@ organizations:
     # dynamic certificate management (enroll, revoke, re-enroll). The following section is only for
     # Fabric-CA servers.
     certificateAuthorities:
-      - ca.org1.hlf.{{env['DOMAIN'] or "local"}}
+      - ca.org1.{{env['DOMAIN'] or "local"}}
 
 # orderer org
 # blockdaemon:
-#   mspid: hlf.{{env['DOMAIN'] or "local"}}
-#   cryptoPath: ordererOrganizations/hlf.{{env['DOMAIN'] or "local"}}/users/{userName}@hlf.{{env['DOMAIN'] or "local"}}/msp
+#   mspid: {{env['DOMAIN'] or "local"}}
+#   cryptoPath: ordererOrganizations/{{env['DOMAIN'] or "local"}}/users/{userName}@{{env['DOMAIN'] or "local"}}/msp
 #   peers:
-#     - peer0.org1.hlf.{{env['DOMAIN'] or "local"}}
-#     - peer1.org1.hlf.{{env['DOMAIN'] or "local"}}
+#     - peer0.org1.{{env['DOMAIN'] or "local"}}
+#     - peer1.org1.{{env['DOMAIN'] or "local"}}
 #   certificateAuthorities:
-#     - ca.org1.hlf.{{env['DOMAIN'] or "local"}}
+#     - ca.org1.{{env['DOMAIN'] or "local"}}
 
 #
 # List of orderers to send transaction and channel create/update requests to. For the time
@@ -187,13 +187,13 @@ organizations:
 # SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
 #
 orderers:
-  orderer0.hlf.{{env['DOMAIN'] or "local"}}:
+  orderer0.{{env['DOMAIN'] or "local"}}:
 #   url: localhost:7050
 
     # these are standard properties defined by the gRPC library
     # they will be passed in as-is to gRPC client constructor
     grpcOptions:
-      ssl-target-name-override: orderer0.hlf.{{env['DOMAIN'] or "local"}}
+      ssl-target-name-override: orderer0.{{env['DOMAIN'] or "local"}}
       # These parameters should be set in coordination with the keepalive policy on the server,
       # as incompatible settings can result in closing of connection.
       # When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
@@ -206,21 +206,21 @@ orderers:
 
     tlsCACerts:
       # Certificate location absolute path
-      path: {{env['CRYPTO']}}/ordererOrganizations/hlf.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.hlf.{{env['DOMAIN'] or "local"}}-cert.pem
+      path: {{env['CRYPTO']}}/ordererOrganizations/{{env['DOMAIN'] or "local"}}/tlsca/tlsca.{{env['DOMAIN'] or "local"}}-cert.pem
 
 #
 # List of peers to send various requests to, including endorsement, query
 # and event listener registration.
 #
 peers:
-  peer0.org1.hlf.{{env['DOMAIN'] or "local"}}:
+  peer0.org1.{{env['DOMAIN'] or "local"}}:
     # this URL is used to send endorsement and query requests
 #   url: localhost:7051
     # eventUrl is only needed when using eventhub (default is delivery service)
 #   eventUrl: localhost:7053
 
     grpcOptions:
-      ssl-target-name-override: peer0.org1.hlf.{{env['DOMAIN'] or "local"}}
+      ssl-target-name-override: peer0.org1.{{env['DOMAIN'] or "local"}}
       # These parameters should be set in coordination with the keepalive policy on the server,
       # as incompatible settings can result in closing of connection.
       # When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
@@ -233,16 +233,16 @@ peers:
 
     tlsCACerts:
       # Certificate location absolute path
-      path: {{env['CRYPTO']}}/peerOrganizations/org1.hlf.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.org1.hlf.{{env['DOMAIN'] or "local"}}-cert.pem
+      path: {{env['CRYPTO']}}/peerOrganizations/org1.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.org1.{{env['DOMAIN'] or "local"}}-cert.pem
 
-  peer1.org1.hlf.{{env['DOMAIN'] or "local"}}:
+  peer1.org1.{{env['DOMAIN'] or "local"}}:
     # this URL is used to send endorsement and query requests
 #   url: localhost:8051
     # eventUrl is only needed when using eventhub (default is delivery service)
 #   eventUrl: localhost:8053
 
     grpcOptions:
-      ssl-target-name-override: peer1.org1.hlf.{{env['DOMAIN'] or "local"}}
+      ssl-target-name-override: peer1.org1.{{env['DOMAIN'] or "local"}}
       # These parameters should be set in coordination with the keepalive policy on the server,
       # as incompatible settings can result in closing of connection.
       # When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
@@ -255,7 +255,7 @@ peers:
 
     tlsCACerts:
       # Certificate location absolute path
-      path: {{env['CRYPTO']}}/peerOrganizations/org1.hlf.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.org1.hlf.{{env['DOMAIN'] or "local"}}-cert.pem
+      path: {{env['CRYPTO']}}/peerOrganizations/org1.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.org1.{{env['DOMAIN'] or "local"}}-cert.pem
 
 #
 # Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
@@ -263,7 +263,7 @@ peers:
 # Certificate Authority instead of Fabric-CA, in which case this section would not be specified.
 #
 certificateAuthorities:
-  ca.org1.hlf.{{env['DOMAIN'] or "local"}}:
+  ca.org1.{{env['DOMAIN'] or "local"}}:
 #   url: http://localhost:7054
     # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
     # needed to enroll and invoke new users.
@@ -275,32 +275,32 @@ certificateAuthorities:
       enrollId: admin
       enrollSecret: adminpw
     # [Optional] The optional name of the CA.
-    caName: ca.org1.hlf.{{env['DOMAIN'] or "local"}}
+    caName: ca.org1.{{env['DOMAIN'] or "local"}}
     tlsCACerts:
       # Certificate location absolute path
-      path: {{env['CRYPTO']}}/peerOrganizations/org1.hlf.{{env['DOMAIN'] or "local"}}/ca/ca.org1.hlf.{{env['DOMAIN'] or "local"}}-cert.pem
+      path: {{env['CRYPTO']}}/peerOrganizations/org1.{{env['DOMAIN'] or "local"}}/ca/ca.org1.{{env['DOMAIN'] or "local"}}-cert.pem
 
 entityMatchers:
   peer:
-    - pattern: (\w*)peer0.org1.hlf.{{env['DOMAIN'] or "local"}}(\w*)
+    - pattern: (\w*)peer0.org1.{{env['DOMAIN'] or "local"}}(\w*)
       urlSubstitutionExp: localhost:7051
       eventUrlSubstitutionExp: localhost:7053
-      sslTargetOverrideUrlSubstitutionExp: peer0.org1.hlf.{{env['DOMAIN'] or "local"}}
-      mappedHost: peer0.org1.hlf.{{env['DOMAIN'] or "local"}}
+      sslTargetOverrideUrlSubstitutionExp: peer0.org1.{{env['DOMAIN'] or "local"}}
+      mappedHost: peer0.org1.{{env['DOMAIN'] or "local"}}
 
-    - pattern: (\w*)peer1.org1.hlf.{{env['DOMAIN'] or "local"}}(\w*)
+    - pattern: (\w*)peer1.org1.{{env['DOMAIN'] or "local"}}(\w*)
       urlSubstitutionExp: localhost:8051
       eventUrlSubstitutionExp: localhost:8053
-      sslTargetOverrideUrlSubstitutionExp: peer1.org1.hlf.{{env['DOMAIN'] or "local"}}
-      mappedHost: peer1.org1.hlf.{{env['DOMAIN'] or "local"}}
+      sslTargetOverrideUrlSubstitutionExp: peer1.org1.{{env['DOMAIN'] or "local"}}
+      mappedHost: peer1.org1.{{env['DOMAIN'] or "local"}}
 
   orderer:
-    - pattern: (\w*)orderer0.hlf.{{env['DOMAIN'] or "local"}}(\w*)
+    - pattern: (\w*)orderer0.{{env['DOMAIN'] or "local"}}(\w*)
       urlSubstitutionExp: localhost:7050
-      sslTargetOverrideUrlSubstitutionExp: orderer0.hlf.{{env['DOMAIN'] or "local"}}
-      mappedHost: orderer0.hlf.{{env['DOMAIN'] or "local"}}
+      sslTargetOverrideUrlSubstitutionExp: orderer0.{{env['DOMAIN'] or "local"}}
+      mappedHost: orderer0.{{env['DOMAIN'] or "local"}}
 
   certificateAuthorities:
-    - pattern: (\w*)ca.org1.hlf.{{env['DOMAIN'] or "local"}}(\w*)
+    - pattern: (\w*)ca.org1.{{env['DOMAIN'] or "local"}}(\w*)
       urlSubstitutionExp: http://localhost:7054
-      mappedHost: ca.org1.hlf.{{env['DOMAIN'] or "local"}}
+      mappedHost: ca.org1.{{env['DOMAIN'] or "local"}}
