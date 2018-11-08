@@ -8,20 +8,25 @@ ifndef GOPATH
     export GOPATH
 endif
 
-MAKEFILES:=Makefile config.env $(wildcard local.env)	# only care about local.env if it is there
+MKFILES:=Makefile config.env $(wildcard local.env)	# only care about local.env if it is there
+CHANFILE:=$(SERVICE_NETWORK)/artifacts/blockdaemon.channel.tx
 
 .PHONY: all fmt
-all: hlf-database-app config.yaml
+all: hlf-database-app config.yaml $(CHANFILE)
+
+$(CHANFILE):
+	make -C $(SERVICE_NETWORK) channel
+
 fmt:
 	gofmt -w $(wildcard *.go */*.go)
 
 hlf-database-app: FORCE
 	go build
 
-config.yaml: $(MAKEFILES)
+config.yaml: $(MKFILES)
 
 # jinja2 rule
-%.yaml: templates/%.yaml.in $(MAKEFILES)
+%.yaml: templates/%.yaml.in $(MKFILES)
 	NETWORK=$(NETWORK) DOMAIN=$(DOMAIN) CHANNEL=$(CHANNEL) CRYPTO=$(CRYPTO) tools/jinja2-cli.py < $< > $@ || (rm -f $@; false)
 
 .PHONY: clean
