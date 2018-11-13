@@ -9,7 +9,7 @@ ifndef GOPATH
 endif
 
 MKFILES:=Makefile config.env $(wildcard local.env)	# only care about local.env if it is there
-CHANFILE:=$(SERVICE_NETWORK)/artifacts/blockdaemon.channel.tx
+CHANFILE:=$(SERVICE_NETWORK)/artifacts/$(CHANNEL).channel.tx
 
 .PHONY: all fmt
 all: hlf-database-app config.yaml $(CHANFILE)
