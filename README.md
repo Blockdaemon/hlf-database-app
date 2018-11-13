@@ -40,7 +40,7 @@ diff <sample-file> out
 pushd $GOPATH/src/github.com/Blockdaemon/hlf-service-network
 docker-compose down
 popd
-. tools/rm-cc
+make clean-cc
 ```
 
 # References
