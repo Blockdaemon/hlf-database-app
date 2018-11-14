@@ -9,13 +9,13 @@ ifndef GOPATH
 endif
 
 MKFILES:=Makefile config.env $(wildcard local.env)	# only care about local.env if it is there
-CHANFILE:=$(SERVICE_NETWORK)/artifacts/$(CHANNEL).channel.tx
+CHANFILES:=$(SERVICE_NETWORK)/artifacts/$(CHANNEL).channel.tx $(SERVICE_NETWORK)/artifacts/$(CHANNEL).anchor-peers.tx
 
 .PHONY: all fmt
-all: hlf-database-app config.yaml $(CHANFILE)
+all: hlf-database-app config.yaml $(CHANFILES)
 
-$(CHANFILE):
-	make -C $(SERVICE_NETWORK) channel
+$(CHANFILES):
+	make -C $(SERVICE_NETWORK) channel anchor-peers
 
 fmt:
 	gofmt -w $(wildcard *.go */*.go)

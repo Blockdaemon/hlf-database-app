@@ -19,13 +19,31 @@ func InitializeChannelAndCC(fSetup *blockchain.FabricSetup, force bool) {
 	// so ignore errors for now, until this code is smarter.
 
 	// FIXME: test if channel is already there and we joined it
-	err := fSetup.CreateAndJoinChannel()
+	err := fSetup.CreateChannel()
 	if err != nil {
-		fmt.Printf("Unable to create and join channel: %v\n", err)
+		fmt.Printf("Unable to create channel: %v\n", err)
 		if !force {
 			return
 		}
-		fmt.Printf("IGNORING create/join channel error\n")
+		fmt.Printf("IGNORING create channel error\n")
+	}
+
+	err = fSetup.UpdateChannel()
+	if err != nil {
+		fmt.Printf("Unable to update channel peers: %v\n", err)
+		if !force {
+			return
+		}
+		fmt.Printf("IGNORING update channel error\n")
+	}
+
+	err = fSetup.JoinChannel()
+	if err != nil {
+		fmt.Printf("Unable to join channel: %v\n", err)
+		if !force {
+			return
+		}
+		fmt.Printf("IGNORING join channel error\n")
 	}
 
 	// FIXME: test if CC is already installed
@@ -46,7 +64,7 @@ func InitializeChannelAndCC(fSetup *blockchain.FabricSetup, force bool) {
 }
 
 func Usage() {
-	fmt.Printf("%s: init\n", os.Args[0])
+	fmt.Printf("%s: <init | create | update | join | install | instantiate>\n", os.Args[0])
 	fmt.Printf("%s: get <key>\n", os.Args[0])
 	fmt.Printf("%s: set <key> <value>\n", os.Args[0])
 	fmt.Printf("%s: store <key> <infile>\n", os.Args[0])
@@ -63,8 +81,9 @@ func NewSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 		OrdererID: "orderer0." + config.GetString("DOMAIN"),
 
 		// Channel parameters
-		ChannelID:     config.GetString("CHANNEL"),
-		ChannelConfig: config.GetString("ARTIFACTS") + "/" + config.GetString("CHANNEL") + ".channel.tx",
+		ChannelID:         config.GetString("CHANNEL"),
+		ChannelConfig:     config.GetString("ARTIFACTS") + "/" + config.GetString("CHANNEL") + ".channel.tx",
+		AnchorPeersConfig: config.GetString("ARTIFACTS") + "/" + config.GetString("CHANNEL") + ".anchor-peers.tx",
 
 		// Chaincode parameters
 		ChainCodeID:      "hlf-database-app",
@@ -117,14 +136,32 @@ func main() {
 	// Close SDK
 	defer fSetup.CloseSDK()
 
-	switch os.Args[1] {
-	case "init":
-		if len(os.Args) != 2 {
-			Usage()
+	if len(os.Args) == 2 {
+		var err error
+		switch os.Args[1] {
+		case "init":
+			InitializeChannelAndCC(fSetup, true)
 			return
+		case "create":
+			err = fSetup.CreateChannel()
+		case "update":
+			err = fSetup.UpdateChannel()
+		case "join":
+			err = fSetup.JoinChannel()
+		case "install":
+			err = fSetup.InstallCC()
+		case "instantiate":
+			err = fSetup.InstantiateCC()
+		default:
+			Usage()
 		}
-		InitializeChannelAndCC(fSetup, true)
+		if err != nil {
+			fmt.Printf("%s failed: %v\n", os.Args[1], err)
+		}
 		return
+	}
+
+	switch os.Args[1] {
 	case "get":
 		if len(os.Args) != 3 {
 			Usage()

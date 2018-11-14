@@ -19,20 +19,21 @@ import (
 
 // FabricSetup implementation
 type FabricSetup struct {
-	ConfigFile       string
-	Domain           string
-	OrgID            string
-	OrdererID        string
-	ChannelID        string
-	ChainCodeID      string
-	initialized      bool
-	ChannelConfig    string
-	ChaincodeGoPath  string
-	ChaincodePath    string
-	ChaincodeVersion string
-	OrgAdmin         string
-	OrgName          string
-	UserName         string
+	ConfigFile        string
+	Domain            string
+	OrgID             string
+	OrdererID         string
+	ChannelID         string
+	ChainCodeID       string
+	initialized       bool
+	ChannelConfig     string
+	AnchorPeersConfig string
+	ChaincodeGoPath   string
+	ChaincodePath     string
+	ChaincodeVersion  string
+	OrgAdmin          string
+	OrgName           string
+	UserName          string
 
 	sdk           *fabsdk.FabricSDK
 	resClient     *resmgmt.Client
@@ -85,16 +86,33 @@ func (setup *FabricSetup) Initialize() error {
 	return nil
 }
 
-func (setup *FabricSetup) CreateAndJoinChannel() error {
+func (setup *FabricSetup) CreateChannel() error {
 	req := resmgmt.SaveChannelRequest{ChannelID: setup.ChannelID, ChannelConfigPath: setup.ChannelConfig, SigningIdentities: []msp.SigningIdentity{*setup.adminIdentity}}
 	txID, err := setup.resClient.SaveChannel(req, resmgmt.WithOrdererEndpoint(setup.OrdererID))
 	if err != nil || txID.TransactionID == "" {
 		return errors.WithMessage(err, "failed to save channel")
 	}
+	//var lastConfigBlock uint64
+	//lastConfigBlock = WaitForOrdererConfigUpdate(t, resmgmt, channelID, true, lastConfigBlock)
 	fmt.Println("Channel created")
+	return nil
+}
 
+func (setup *FabricSetup) UpdateChannel() error {
+	req := resmgmt.SaveChannelRequest{ChannelID: setup.ChannelID, ChannelConfigPath: setup.AnchorPeersConfig, SigningIdentities: []msp.SigningIdentity{*setup.adminIdentity}}
+	txID, err := setup.resClient.SaveChannel(req, resmgmt.WithOrdererEndpoint(setup.OrdererID))
+	if err != nil || txID.TransactionID == "" {
+		return errors.WithMessage(err, "failed to update channel with anchor peers")
+	}
+	//var lastConfigBlock uint64
+	//lastConfigBlock = WaitForOrdererConfigUpdate(t, resmgmt, channelID, true, lastConfigBlock)
+	fmt.Println("Channel anchor peers updated")
+	return nil
+}
+
+func (setup *FabricSetup) JoinChannel() error {
 	// Make admin user join the previously created channel
-	if err = setup.resClient.JoinChannel(setup.ChannelID, resmgmt.WithRetry(retry.DefaultResMgmtOpts), resmgmt.WithOrdererEndpoint(setup.OrdererID)); err != nil {
+	if err := setup.resClient.JoinChannel(setup.ChannelID, resmgmt.WithRetry(retry.DefaultResMgmtOpts), resmgmt.WithOrdererEndpoint(setup.OrdererID)); err != nil {
 		return errors.WithMessage(err, "failed to make admin join channel")
 	}
 	fmt.Println("Channel joined")
@@ -136,16 +154,16 @@ func (setup *FabricSetup) InstantiateCC() error {
 	if err != nil || resp.TransactionID == "" {
 		// Seriously, hyperledger?
 		if strings.Contains(err.Error(), "chaincode exists "+setup.ChainCodeID) {
-			fmt.Println("Chaincode already instantiated on channel "+setup.ChannelID)
+			fmt.Println("Chaincode already instantiated on channel " + setup.ChannelID)
 			return nil
 		}
 		if strings.Contains(err.Error(), "chaincode with name '"+setup.ChainCodeID+"' already exists") {
-			fmt.Println("Chaincode already instantiated on channel "+setup.ChannelID)
+			fmt.Println("Chaincode already instantiated on channel " + setup.ChannelID)
 			return nil
 		}
 		return errors.WithMessage(err, "failed to instantiate the chaincode on channel "+setup.ChannelID)
 	}
-	fmt.Println("Chaincode instantiated on channel "+setup.ChannelID)
+	fmt.Println("Chaincode instantiated on channel " + setup.ChannelID)
 	return nil
 }
 
