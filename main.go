@@ -152,6 +152,20 @@ func main() {
 			err = fSetup.InstallCC()
 		case "instantiate":
 			err = fSetup.InstantiateCC()
+		case "webapp":
+			err = fSetup.CreateChannelAndEventClients()
+			if err != nil {
+				fmt.Printf("Unable to create channel and event clients: %v\n", err)
+				return
+			}
+			// Web app setup
+			app := &controllers.Application{
+				Fabric:  fSetup,
+				WebRoot: config.GetString("WEBROOT"),
+				WebPort: config.GetInt("WEBPORT"),
+			}
+			// GO GO GO!
+			web.Serve(app)
 		default:
 			Usage()
 		}
@@ -189,7 +203,6 @@ func main() {
 		}
 		fetchKey = os.Args[2]
 		filename = os.Args[3]
-	case "webapp":
 	default:
 		Usage()
 		return
@@ -237,15 +250,6 @@ func main() {
 				fmt.Printf("Failed to write '%s': %v\n", filename, err)
 			}
 		}
-	} else if os.Args[1] == "webapp" {
-		// Web app setup
-		app := &controllers.Application{
-			Fabric:  fSetup,
-			WebRoot: config.GetString("WEBROOT"),
-			WebPort: config.GetInt("WEBPORT"),
-		}
-		// GO GO GO!
-		web.Serve(app)
 	} else {
 		Usage()
 	}
