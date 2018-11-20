@@ -1,60 +1,12 @@
 name: "{{env['NETWORK'] or "some-network"}}"
-#
-# Schema version of the content. Used by the SDK to apply the corresponding parsing rules.
-#
 version: 1.0.0
 
-#
-# The client section used by GO SDK.
-#
 client:
 
-  # Which organization does this application instance belong to? The value must be the name of an org
-  # defined under "organizations"
   organization: org1
 
   logging:
     level: info
-
-  # Global configuration for peer, event service and orderer timeouts
-  # if this this section is omitted, then default values will be used (same values as below)
-# peer:
-#   timeout:
-#     connection: 10s
-#     response: 180s
-#     discovery:
-        # Expiry period for discovery service greylist filter
-        # The channel client will greylist peers that are found to be offline
-        # to prevent re-selecting them in subsequent retries.
-        # This interval will define how long a peer is greylisted
-#       greylistExpiry: 10s
-# eventService:
-    # Event service type (optional). If not specified then the type is automatically
-    # determined from channel capabilities.
-#   type: (deliver|eventhub)
-    # the below timeouts are commented out to use the default values that are found in
-    # "pkg/fab/endpointconfig.go"
-    # the client is free to override the default values by uncommenting and resetting
-    # the values as they see fit in their config file
-#   timeout:
-#     connection: 15s
-#     registrationResponse: 15s
-# orderer:
-#   timeout:
-#     connection: 15s
-#     response: 15s
-# global:
-#   timeout:
-#     query: 180s
-#     execute: 180s
-#     resmgmt: 180s
-#   cache:
-#     connectionIdle: 30s
-#     eventServiceIdle: 2m
-#     channelConfig: 30m
-#     channelMembership: 30s
-#     discovery: 10s
-#     selection: 10m
 
   # Root of the MSP directories with keys and certs.
   cryptoconfig:
@@ -63,31 +15,12 @@ client:
   # Some SDKs support pluggable KV stores, the properties under "credentialStore"
   # are implementation specific
   credentialStore:
-    path: /tmp/hlf-database-app-store
+    path: {{env['HOME']}}/.hlf-database-app/store
 
     # [Optional]. Specific to the CryptoSuite implementation used by GO SDK. Software-based implementations
     # requiring a key store. PKCS#11 based implementations does not.
     cryptoStore:
-      path: /tmp/hlf-database-app-msp
-
-   # BCCSP config for the client. Used by GO SDK.
-  BCCSP:
-    security:
-     enabled: true
-     default:
-      provider: "SW"
-     hashAlgorithm: "SHA2"
-     softVerify: true
-     level: 256
-
-# tlsCerts:
-    # [Optional]. Use system certificate pool when connecting to peers, orderers (for negotiating TLS) Default: false
-#   systemCertPool: false
-
-    # [Optional]. Client key and cert for TLS handshake with peers and orderers
-#   client:
-#     keyfile:
-#     certfile:
+      path: {{env['HOME']}}/.hlf-database-app/msp
 
 #
 # [Optional]. But most apps would have this section so that channel objects can be constructed
@@ -101,9 +34,6 @@ channels:
     # channel. This list can be a result of access control ("org1" can only access "ordererA"), or
     # operational decisions to share loads from applications among the orderers.  The values must
     # be "names" of orgs defined under "organizations/peers"
-    # deprecated: not recommended, to override any orderer configuration items, entity matchers should be used.
-    # orderers:
-    #  - orderer.example.com
 
     # Required. list of peers from participating orgs
     peers:
@@ -132,25 +62,6 @@ channels:
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-
-#   policies:
-      #[Optional] options for retrieving channel configuration blocks
-#     queryChannelConfig:
-        #[Optional] min number of success responses (from targets/peers)
-#       minResponses: 1
-        #[Optional] channel config will be retrieved for these number of random targets
-#       maxTargets: 1
-        #[Optional] retry options for query config block
-#       retryOpts:
-          #[Optional] number of retry attempts
-#         attempts: 5
-          #[Optional] the back off interval for the first retry attempt
-#         initialBackoff: 500ms
-          #[Optional] the maximum back off interval for any retry attempt
-#         maxBackoff: 5s
-          #[Optional] he factor by which the initial back off period is exponentially incremented
-#         backoffFactor: 2.0
-
 
 #
 # list of participating organizations in this network
@@ -188,21 +99,11 @@ organizations:
 #
 orderers:
   orderer0.{{env['DOMAIN'] or "local"}}:
-#   url: localhost:7050
 
     # these are standard properties defined by the gRPC library
     # they will be passed in as-is to gRPC client constructor
     grpcOptions:
       ssl-target-name-override: orderer0.{{env['DOMAIN'] or "local"}}
-      # These parameters should be set in coordination with the keepalive policy on the server,
-      # as incompatible settings can result in closing of connection.
-      # When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
-#     keep-alive-time: 0s
-#     keep-alive-timeout: 20s
-#     keep-alive-permit: false
-#     fail-fast: false
-      # allow-insecure will be taken into consideration if address has no protocol defined, if true then grpc or else grpcs
-#     allow-insecure: false
 
     tlsCACerts:
       # Certificate location absolute path
@@ -214,44 +115,17 @@ orderers:
 #
 peers:
   peer0.org1.{{env['DOMAIN'] or "local"}}:
-    # this URL is used to send endorsement and query requests
-#   url: localhost:7051
-    # eventUrl is only needed when using eventhub (default is delivery service)
-#   eventUrl: localhost:7053
 
     grpcOptions:
       ssl-target-name-override: peer0.org1.{{env['DOMAIN'] or "local"}}
-      # These parameters should be set in coordination with the keepalive policy on the server,
-      # as incompatible settings can result in closing of connection.
-      # When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
-#     keep-alive-time: 0s
-#     keep-alive-timeout: 20s
-#     keep-alive-permit: false
-#     fail-fast: false
-      # allow-insecure will be taken into consideration if address has no protocol defined, if true then grpc or else grpcs
-#     allow-insecure: false
 
     tlsCACerts:
       # Certificate location absolute path
       path: {{env['CRYPTO']}}/peerOrganizations/org1.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.org1.{{env['DOMAIN'] or "local"}}-cert.pem
 
   peer1.org1.{{env['DOMAIN'] or "local"}}:
-    # this URL is used to send endorsement and query requests
-#   url: localhost:8051
-    # eventUrl is only needed when using eventhub (default is delivery service)
-#   eventUrl: localhost:8053
-
     grpcOptions:
       ssl-target-name-override: peer1.org1.{{env['DOMAIN'] or "local"}}
-      # These parameters should be set in coordination with the keepalive policy on the server,
-      # as incompatible settings can result in closing of connection.
-      # When duration of the 'keep-alive-time' is set to 0 or less the keep alive client parameters are disabled
-#     keep-alive-time: 0s
-#     keep-alive-timeout: 20s
-#     keep-alive-permit: false
-#     fail-fast: false
-      # allow-insecure will be taken into consideration if address has no protocol defined, if true then grpc or else grpcs
-#     allow-insecure: false
 
     tlsCACerts:
       # Certificate location absolute path
@@ -264,7 +138,6 @@ peers:
 #
 certificateAuthorities:
   ca.org1.{{env['DOMAIN'] or "local"}}:
-#   url: http://localhost:7054
     # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
     # needed to enroll and invoke new users.
     httpOptions:
