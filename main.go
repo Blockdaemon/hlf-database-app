@@ -91,7 +91,7 @@ func NewSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 		ChaincodePath:    "github.com/Blockdaemon/hlf-database-app/chaincode/",
 		ChaincodeVersion: "0",
 		OrgAdmin:         "Admin",
-		OrgName:          "org1",
+		OrgName:          os.Getenv("ORG"),
 		ConfigFile:       "config.yaml",
 
 		// User parameters

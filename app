@@ -5,4 +5,4 @@ if [ -z "${GOPATH}" ]; then
 fi
 
 source config.env
-DOMAIN=${DOMAIN} CHANNEL=${CHANNEL} ARTIFACTS=${ARTIFACTS} exec ./hlf-database-app "$@"
+DOMAIN=${DOMAIN} ORG=${ORG} CHANNEL=${CHANNEL} ARTIFACTS=${ARTIFACTS} exec ./hlf-database-app "$@"
