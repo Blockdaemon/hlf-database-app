@@ -10,7 +10,11 @@ endif
 
 MKFILES:=Makefile config.env $(wildcard local.env)	# only care about local.env if it is there
 CHANFILES:=$(SERVICE_NETWORK)/artifacts/$(CHANNEL).channel.tx $(SERVICE_NETWORK)/artifacts/$(CHANNEL).anchor-peers.tx
-
+ifeq ($(shell uname -s),Darwin)
+XARGS:=xargs
+else
+XARGS:=xargs -r
+endif
 .PHONY: all fmt
 all: hlf-database-app config.yaml $(CHANFILES)
 
@@ -31,13 +35,14 @@ config.yaml: $(MKFILES)
 
 .PHONY: clean
 clean:
+	go clean
 	rm -rf __pycache__
 	rm -f config.yaml
 	rm -f hlf-database-app
 
 .PHONY: clean-cc
 clean-cc:
-	docker ps -a | grep "chaincode -peer" | cut -f 1 -d " " | xargs -r docker rm
-	docker image ls | grep "chaincode -peer" | cut -f 1 -d " " | xargs -r docker rmi
+	docker ps -a | grep "chaincode -peer" | cut -f 1 -d " " | $(XARGS) docker rm
+	docker image ls | grep "chaincode -peer" | cut -f 1 -d " " | $(XARGS) docker rmi
 
 .PHONY: FORCE
