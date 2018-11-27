@@ -63,7 +63,7 @@ func initializeChannelAndCC(fSetup *blockchain.FabricSetup, force bool) {
 	}
 }
 
-func Usage() {
+func usage() {
 	fmt.Printf("%s: <init | create | update | join | install | instantiate>\n", os.Args[0])
 	fmt.Printf("%s: get <key>\n", os.Args[0])
 	fmt.Printf("%s: set <key> <value>\n", os.Args[0])
@@ -72,7 +72,7 @@ func Usage() {
 	fmt.Printf("%s: webapp\n", os.Args[0])
 }
 
-func NewSetup(config *config.Config) (*blockchain.FabricSetup, error) {
+func newSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 
 	// Definition of the Fabric SDK properties
 	fSetup := blockchain.FabricSetup{
@@ -112,7 +112,7 @@ func main() {
 	var storeKey, fetchKey, filename string
 
 	if len(os.Args) == 1 {
-		Usage()
+		usage()
 		return
 	}
 
@@ -127,7 +127,7 @@ func main() {
 	config.DescribeOptionalInt("WEBPORT", "The listen port for hlf-webapp", 3001)
 	config.Parse()
 
-	fSetup, err := NewSetup(config)
+	fSetup, err := newSetup(config)
 	if err != nil {
 		fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
 		return
@@ -167,7 +167,7 @@ func main() {
 			// GO GO GO!
 			web.Serve(app)
 		default:
-			Usage()
+			usage()
 		}
 		if err != nil {
 			fmt.Printf("%s failed: %v\n", os.Args[1], err)
@@ -178,33 +178,33 @@ func main() {
 	switch os.Args[1] {
 	case "get":
 		if len(os.Args) != 3 {
-			Usage()
+			usage()
 			return
 		}
 		getKey = os.Args[2]
 	case "set":
 		if len(os.Args) != 4 {
-			Usage()
+			usage()
 			return
 		}
 		setKey = os.Args[2]
 		setValue = os.Args[3]
 	case "store":
 		if len(os.Args) != 4 {
-			Usage()
+			usage()
 			return
 		}
 		storeKey = os.Args[2]
 		filename = os.Args[3]
 	case "fetch":
 		if len(os.Args) != 4 {
-			Usage()
+			usage()
 			return
 		}
 		fetchKey = os.Args[2]
 		filename = os.Args[3]
 	default:
-		Usage()
+		usage()
 		return
 	}
 
@@ -251,6 +251,6 @@ func main() {
 			}
 		}
 	} else {
-		Usage()
+		usage()
 	}
 }
