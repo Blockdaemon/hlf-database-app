@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
@@ -10,6 +11,7 @@ import (
 type DatabaseChaincode struct {
 }
 
+// Errorf - Sprintf version of shim.Error()
 func Errorf(format string, args ...interface{}) pb.Response {
 	return shim.Error(fmt.Sprintf(format, args))
 }
@@ -32,8 +34,7 @@ func (t *DatabaseChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Success(nil)
 }
 
-// Invoke
-// All future requests named invoke will arrive here.
+// Invoke - All future requests named invoke will arrive here.
 func (t *DatabaseChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("########### DatabaseChaincode Invoke ###########")
 
