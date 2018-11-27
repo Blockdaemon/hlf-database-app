@@ -13,7 +13,7 @@ import (
 	"github.com/Blockdaemon/hlf-database-app/blockchain"
 )
 
-func InitializeChannelAndCC(fSetup *blockchain.FabricSetup, force bool) {
+func initializeChannelAndCC(fSetup *blockchain.FabricSetup, force bool) {
 
 	// Any one of these can fail if it was partially completed on last run,
 	// so ignore errors for now, until this code is smarter.
@@ -140,7 +140,7 @@ func main() {
 		var err error
 		switch os.Args[1] {
 		case "init":
-			InitializeChannelAndCC(fSetup, true)
+			initializeChannelAndCC(fSetup, true)
 			return
 		case "create":
 			err = fSetup.CreateChannel()
