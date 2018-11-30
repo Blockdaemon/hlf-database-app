@@ -42,7 +42,7 @@ clean:
 
 .PHONY: clean-cc
 clean-cc:
-	docker ps -a | grep "chaincode -peer" | cut -f 1 -d " " | $(XARGS) docker rm
-	docker image ls | grep "chaincode -peer" | cut -f 1 -d " " | $(XARGS) docker rmi
+	docker ps -a | grep "hlf-database-app" | cut -f 1 -d " " | $(XARGS) docker rm
+	docker image ls | grep "hlf-database-app" | cut -f 1 -d " " | $(XARGS) docker rmi
 
 .PHONY: FORCE
