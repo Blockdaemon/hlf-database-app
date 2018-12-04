@@ -64,7 +64,8 @@ func initializeChannelAndCC(fSetup *blockchain.FabricSetup, force bool) {
 }
 
 func usage() {
-	fmt.Printf("%s: <init | create | update | join | install | instantiate>\n", os.Args[0])
+	fmt.Printf("%s: <init> (does create, update, join, install, instantiate)\n", os.Args[0])
+	fmt.Printf("%s: <create | update | join | install | instantiate>\n", os.Args[0])
 	fmt.Printf("%s: get <key>\n", os.Args[0])
 	fmt.Printf("%s: set <key> <value>\n", os.Args[0])
 	fmt.Printf("%s: store <key> <infile>\n", os.Args[0])
