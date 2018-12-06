@@ -79,6 +79,7 @@ func newSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 	fSetup := blockchain.FabricSetup{
 		// Network parameters
 		Domain:    config.GetString("DOMAIN"),
+		SubDomain: config.GetString("SUBDOMAIN"),
 		OrdererID: "orderer0." + config.GetString("DOMAIN"),
 
 		// Channel parameters
@@ -92,7 +93,7 @@ func newSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 		ChaincodePath:    "github.com/Blockdaemon/hlf-database-app/chaincode/",
 		ChaincodeVersion: "0",
 		OrgAdmin:         "Admin",
-		OrgName:          os.Getenv("ORG"),
+		OrgName:          os.Getenv("SUBORGNAME"),
 		ConfigFile:       "config.yaml",
 
 		// User parameters

@@ -4,5 +4,6 @@ if [ -z "${GOPATH}" ]; then
     export GOPATH=${HOME}/go
 fi
 
+set -a
 source config.env
-DOMAIN=${DOMAIN} ORG=${ORG} CHANNEL=${CHANNEL} ARTIFACTS=${ARTIFACTS} exec ./hlf-database-app "$@"
+exec ./hlf-database-app "$@"

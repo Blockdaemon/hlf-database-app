@@ -31,7 +31,7 @@ config.yaml: $(MKFILES)
 
 # jinja2 rule
 %.yaml: templates/%.yaml.in $(MKFILES)
-	NETWORK=$(NETWORK) DOMAIN=$(DOMAIN) CHANNEL=$(CHANNEL) CRYPTO=$(CRYPTO) tools/jinja2-cli.py < $< > $@ || (rm -f $@; false)
+	eval $$(sed -e 's/#.*$$//' config.env | xargs) tools/jinja2-cli.py < $< > $@ || (rm -f $@; false)
 
 .PHONY: clean
 clean:
