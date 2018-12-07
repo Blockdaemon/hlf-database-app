@@ -18,7 +18,7 @@ endif
 .PHONY: all fmt
 all: hlf-database-app config.yaml $(CHANFILES)
 
-$(CHANFILES):
+$(CHANFILES): FORCE
 	make -C $(SERVICE_NETWORK) channel anchor-peers
 
 fmt:
