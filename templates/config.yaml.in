@@ -39,7 +39,7 @@ channels:
 # list of participating organizations in this network
 #
 organizations:
-# peer org
+  # peer org
   {{env['SUBORGNAME']}}:
     mspid: {{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
     cryptoPath: peerOrganizations/{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/users/{userName}@{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/msp
@@ -55,7 +55,7 @@ organizations:
     certificateAuthorities:
       - ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
 
-# orderer org
+  # orderer org
 # {{env['ORGNAME']}}:
 #   mspid: {{env['DOMAIN'] or "local"}}
 #   cryptoPath: ordererOrganizations/{{env['DOMAIN'] or "local"}}/users/{userName}@{{env['DOMAIN'] or "local"}}/msp
@@ -72,13 +72,6 @@ organizations:
 #
 orderers:
   orderer0.{{env['DOMAIN'] or "local"}}:
-    url: orderer0.{{env['DOMAIN'] or "local"}}:7050
-
-    # these are standard properties defined by the gRPC library
-    # they will be passed in as-is to gRPC client constructor
-    grpcOptions:
-      ssl-target-name-override: orderer0.{{env['DOMAIN'] or "local"}}
-
     tlsCACerts:
       # Certificate location absolute path
       path: {{env['CRYPTO']}}/ordererOrganizations/{{env['DOMAIN'] or "local"}}/tlsca/tlsca.{{env['DOMAIN'] or "local"}}-cert.pem
@@ -89,21 +82,11 @@ orderers:
 #
 peers:
   peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:
-    url: peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:7051
-
-    grpcOptions:
-      ssl-target-name-override: peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
-
     tlsCACerts:
       # Certificate location absolute path
       path: {{env['CRYPTO']}}/peerOrganizations/{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}-cert.pem
 
   peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:
-    url: peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:7051
-
-    grpcOptions:
-      ssl-target-name-override: peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
-
     tlsCACerts:
       # Certificate location absolute path
       path: {{env['CRYPTO']}}/peerOrganizations/{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}-cert.pem
@@ -115,19 +98,13 @@ peers:
 #
 certificateAuthorities:
   ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:
-    url: ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:7054
-
-    # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
-    # needed to enroll and invoke new users.
-    httpOptions:
-      verify: false
+    #httpOptions:
+    #  verify: false
     registrar:
-      # as specified in `fabric-ca-server start -b ...`
-      # (see docker-compose.yaml in hlf-service-network)
       enrollId: admin
       enrollSecret: adminpw
     # [Optional] The optional name of the CA.
-    caName: ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
+    #caName: ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
     tlsCACerts:
       # Certificate location absolute path
       path: {{env['CRYPTO']}}/peerOrganizations/{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/ca/ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}-cert.pem
