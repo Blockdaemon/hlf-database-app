@@ -224,7 +224,7 @@ func main() {
 			fmt.Printf("'%s'='%s'\n", getKey, val)
 		}
 	} else if setKey != "" && setValue != "" {
-		txid, err := fSetup.Invoke(setKey, setValue)
+		txid, err := fSetup.InvokeString(setKey, setValue)
 		if err != nil {
 			fmt.Printf("Invoke '%s'='%s' failed: %v\n", setKey, setValue, err)
 		} else {
@@ -235,7 +235,7 @@ func main() {
 		if err != nil {
 			fmt.Printf("Failed to read '%s': %v\n", filename, err)
 		} else {
-			txid, err := fSetup.InvokeRaw(storeKey, val)
+			txid, err := fSetup.Invoke(storeKey, val)
 			if err != nil {
 				fmt.Printf("InvokeRaw '%s'= contents of '%s' failed: %v\n", storeKey, filename, err)
 			} else {

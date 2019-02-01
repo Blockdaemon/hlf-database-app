@@ -7,12 +7,12 @@ import (
 )
 
 // Invoke - set key's value to string
-func (setup *FabricSetup) Invoke(key string, value string) (string, error) {
-	return setup.InvokeRaw(key, []byte(value))
+func (setup *FabricSetup) InvokeString(key string, value string) (string, error) {
+	return setup.Invoke(key, []byte(value))
 }
 
 // Invoke - set key's value to []byte array
-func (setup *FabricSetup) InvokeRaw(key string, value []byte) (string, error) {
+func (setup *FabricSetup) Invoke(key string, value []byte) (string, error) {
 
 	eventID := "eventInvoke"
 
