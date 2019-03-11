@@ -109,10 +109,120 @@ func newSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 	return &fSetup, nil
 }
 
-func main() {
+func doInitCommand(fSetup *blockchain.FabricSetup, cmd string, config *config.Config) error {
+	var err error
+	switch cmd {
+	case "init":
+		initializeChannelAndCC(fSetup, true)
+		return nil
+	case "create":
+		err = fSetup.CreateChannel()
+	case "update":
+		err = fSetup.UpdateChannel()
+	case "join":
+		err = fSetup.JoinChannel()
+	case "install":
+		err = fSetup.InstallCC()
+	case "instantiate":
+		err = fSetup.InstantiateCC()
+	case "webapp":
+		err = fSetup.CreateChannelAndEventClients()
+		if err != nil {
+			fmt.Printf("Unable to create channel and event clients: %v\n", err)
+			return err
+		}
+		// Web app setup
+		app := &controllers.Application{
+			Fabric:  fSetup,
+			WebRoot: config.GetString("WEBROOT"),
+			WebPort: config.GetInt("WEBPORT"),
+		}
+		// GO GO GO!
+		web.Serve(app)
+	default:
+		usage()
+	}
+	return err
+}
+
+func doGetSetCommand(fSetup *blockchain.FabricSetup) {
 	var getKey, setKey, setValue string
 	var storeKey, fetchKey, filename string
 
+	if os.Args[1] != "get" && len(os.Args) < 4 {
+		usage()
+		return
+	}
+
+	switch os.Args[1] {
+	case "get":
+		if len(os.Args) != 3 {
+			usage()
+			return
+		}
+		getKey = os.Args[2]
+	case "set":
+		setKey = os.Args[2]
+		setValue = os.Args[3]
+	case "store":
+		storeKey = os.Args[2]
+		filename = os.Args[3]
+	case "fetch":
+		fetchKey = os.Args[2]
+		filename = os.Args[3]
+	default:
+		usage()
+		return
+	}
+
+	err := fSetup.CreateChannelAndEventClients()
+	if err != nil {
+		fmt.Printf("Unable to create channel and event clients: %v\n", err)
+		return
+	}
+
+	if getKey != "" {
+		val, err := fSetup.Query(getKey)
+		if err != nil {
+			fmt.Printf("Query '%s' failed: %v\n", getKey, err)
+		} else {
+			fmt.Printf("'%s'='%s'\n", getKey, val)
+		}
+	} else if setKey != "" {
+		txid, err := fSetup.InvokeString(setKey, setValue)
+		if err != nil {
+			fmt.Printf("Invoke '%s'='%s' failed: %v\n", setKey, setValue, err)
+		} else {
+			fmt.Printf("Transaction %s successful\n", txid)
+		}
+	} else if storeKey != "" {
+		val, err := ioutil.ReadFile(filename)
+		if err != nil {
+			fmt.Printf("Failed to read '%s': %v\n", filename, err)
+		} else {
+			txid, err := fSetup.Invoke(storeKey, val)
+			if err != nil {
+				fmt.Printf("InvokeRaw '%s'= contents of '%s' failed: %v\n", storeKey, filename, err)
+			} else {
+				fmt.Printf("Transaction %s successful\n", txid)
+			}
+		}
+	} else if fetchKey != "" {
+		val, err := fSetup.QueryRaw(fetchKey)
+		if err != nil {
+			fmt.Printf("QueryRaw '%s' failed: %v\n", fetchKey, err)
+		} else {
+			err := ioutil.WriteFile(filename, val, os.FileMode(int(0644)))
+			if err != nil {
+				fmt.Printf("Failed to write '%s': %v\n", filename, err)
+			}
+		}
+	} else {
+		usage()
+	}
+}
+
+func main() {
 	if len(os.Args) == 1 {
 		usage()
 		return
@@ -138,121 +248,13 @@ func main() {
 	// Close SDK
 	defer fSetup.CloseSDK()
 
-	if len(os.Args) == 2 {
-		var err error
-		switch os.Args[1] {
-		case "init":
-			initializeChannelAndCC(fSetup, true)
-			return
-		case "create":
-			err = fSetup.CreateChannel()
-		case "update":
-			err = fSetup.UpdateChannel()
-		case "join":
-			err = fSetup.JoinChannel()
-		case "install":
-			err = fSetup.InstallCC()
-		case "instantiate":
-			err = fSetup.InstantiateCC()
-		case "webapp":
-			err = fSetup.CreateChannelAndEventClients()
-			if err != nil {
-				fmt.Printf("Unable to create channel and event clients: %v\n", err)
-				return
-			}
-			// Web app setup
-			app := &controllers.Application{
-				Fabric:  fSetup,
-				WebRoot: config.GetString("WEBROOT"),
-				WebPort: config.GetInt("WEBPORT"),
-			}
-			// GO GO GO!
-			web.Serve(app)
-		default:
-			usage()
-		}
+	// Simple init command
+	if len(os.Args) == 2 && os.Args[1] != "get" {
+		err = doInitCommand(fSetup, os.Args[1], config)
 		if err != nil {
 			fmt.Printf("%s failed: %v\n", os.Args[1], err)
 		}
-		return
-	}
-
-	switch os.Args[1] {
-	case "get":
-		if len(os.Args) != 3 {
-			usage()
-			return
-		}
-		getKey = os.Args[2]
-	case "set":
-		if len(os.Args) != 4 {
-			usage()
-			return
-		}
-		setKey = os.Args[2]
-		setValue = os.Args[3]
-	case "store":
-		if len(os.Args) != 4 {
-			usage()
-			return
-		}
-		storeKey = os.Args[2]
-		filename = os.Args[3]
-	case "fetch":
-		if len(os.Args) != 4 {
-			usage()
-			return
-		}
-		fetchKey = os.Args[2]
-		filename = os.Args[3]
-	default:
-		usage()
-		return
-	}
-
-	err = fSetup.CreateChannelAndEventClients()
-	if err != nil {
-		fmt.Printf("Unable to create channel and event clients: %v\n", err)
-		return
-	}
-
-	if getKey != "" {
-		val, err := fSetup.Query(getKey)
-		if err != nil {
-			fmt.Printf("Query '%s' failed: %v\n", getKey, err)
-		} else {
-			fmt.Printf("'%s'='%s'\n", getKey, val)
-		}
-	} else if setKey != "" && setValue != "" {
-		txid, err := fSetup.InvokeString(setKey, setValue)
-		if err != nil {
-			fmt.Printf("Invoke '%s'='%s' failed: %v\n", setKey, setValue, err)
-		} else {
-			fmt.Printf("Transaction %s successful\n", txid)
-		}
-	} else if storeKey != "" && filename != "" {
-		val, err := ioutil.ReadFile(filename)
-		if err != nil {
-			fmt.Printf("Failed to read '%s': %v\n", filename, err)
-		} else {
-			txid, err := fSetup.Invoke(storeKey, val)
-			if err != nil {
-				fmt.Printf("InvokeRaw '%s'= contents of '%s' failed: %v\n", storeKey, filename, err)
-			} else {
-				fmt.Printf("Transaction %s successful\n", txid)
-			}
-		}
-	} else if fetchKey != "" && filename != "" {
-		val, err := fSetup.QueryRaw(fetchKey)
-		if err != nil {
-			fmt.Printf("QueryRaw '%s' failed: %v\n", fetchKey, err)
-		} else {
-			err := ioutil.WriteFile(filename, val, os.FileMode(int(0644)))
-			if err != nil {
-				fmt.Printf("Failed to write '%s': %v\n", filename, err)
-			}
-		}
 	} else {
-		usage()
+		doGetSetCommand(fSetup)
 	}
 }
