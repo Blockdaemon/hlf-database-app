@@ -1,5 +1,5 @@
 config.yaml
-vendor
 Gopkg.lock
+go.sum
 hlf-database-app
 .*.swp
