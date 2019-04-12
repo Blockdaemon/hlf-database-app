@@ -71,7 +71,7 @@ organizations:
 # SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
 #
 orderers:
-  orderer0.{{env['ORDERER_DOMAIN'] or "local"}}:
+  {{env['ORDERER_ID']}}:
     tlsCACerts:
       # Certificate location absolute path
       path: {{env['CRYPTO']}}/ordererOrganizations/{{env['ORDERER_ORG']}}/tlsca/tlsca.{{env['ORDERER_DOMAIN'] or "local"}}-cert.pem
@@ -109,7 +109,7 @@ certificateAuthorities:
       # Certificate location absolute path
       path: {{env['CRYPTO']}}/peerOrganizations/{{env['PEER_ORG']}}/tlsca/tlsca.{{env['PEER_DOMAIN'] or "local"}}-cert.pem
 
-entityMatchers:
+{{env['DISABLE_MATCHERS'] or ""}}entityMatchers:
   peer:
     - pattern: (\w*)peer0.{{env['PEER_DOMAIN'] or "local"}}(\w*)
       urlSubstitutionExp: localhost:7051
@@ -124,10 +124,10 @@ entityMatchers:
       mappedHost: peer1.{{env['PEER_DOMAIN'] or "local"}}
 
   orderer:
-    - pattern: (\w*)orderer0.{{env['DOMAIN'] or "local"}}(\w*)
+    - pattern: (\w*){{env['ORDERER_ID']}}(\w*)
       urlSubstitutionExp: localhost:7050
       sslTargetOverrideUrlSubstitutionExp: orderer0.{{env['DOMAIN'] or "local"}}
-      mappedHost: orderer0.{{env['DOMAIN'] or "local"}}
+      mappedHost: {{env['ORDERER_ID']}}
 
   certificateAuthorities:
     - pattern: (\w*)ca.{{env['PEER_DOMAIN'] or "local"}}(\w*)
