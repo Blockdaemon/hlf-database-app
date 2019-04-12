@@ -78,9 +78,8 @@ func newSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 	// Definition of the Fabric SDK properties
 	fSetup := blockchain.FabricSetup{
 		// Network parameters
-		Domain:    config.GetString("DOMAIN"),
-		SubDomain: config.GetString("SUBDOMAIN"),
-		OrdererID: "orderer0." + config.GetString("DOMAIN"),
+		OrdererID: config.GetString("ORDERER_ID"),
+		PeerOrg:   config.GetString("PEER_ORG"),
 
 		// Channel parameters
 		ChannelID:         config.GetString("CHANNEL"),
@@ -93,7 +92,7 @@ func newSetup(config *config.Config) (*blockchain.FabricSetup, error) {
 		ChaincodePath:    "github.com/Blockdaemon/hlf-database-app/chaincode/",
 		ChaincodeVersion: "0",
 		OrgAdmin:         "Admin",
-		OrgName:          os.Getenv("SUBORGNAME"),
+		OrgName:          os.Getenv("PEER_ORGNAME"),
 		ConfigFile:       "config.yaml",
 
 		// User parameters
@@ -230,7 +229,9 @@ func main() {
 
 	bdsrc := os.Getenv("GOPATH") + "/src/github.com/Blockdaemon"
 	config := new(config.Config)
-	config.DescribeOptionalString("DOMAIN", "The domain to use in CAs", "blockdaemon.io")
+	config.DescribeOptionalString("ORDERER_ID", "the orderer to use", "orderer0.hlf.blockdaemon.io")
+	config.DescribeOptionalString("PEER_ORG", "Peer organization", "PeerOrg")
+	config.DescribeOptionalString("PEER_ORGNAME", "The name of the org the admin is in", "PeerOrgName")
 	config.DescribeOptionalString("CHANNEL", "The channel to use", "blockdaemon")
 	config.DescribeOptionalString("ARTIFACTS", "The artifact directory",
 		bdsrc+"/hlf-service-network/artifacts")

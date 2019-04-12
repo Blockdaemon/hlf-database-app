@@ -20,8 +20,7 @@ import (
 // FabricSetup implementation
 type FabricSetup struct {
 	ConfigFile        string
-	Domain            string
-	SubDomain         string
+	PeerOrg           string
 	OrgID             string
 	OrdererID         string
 	ChannelID         string
@@ -141,7 +140,7 @@ func (setup *FabricSetup) InstallCC() error {
 
 func (setup *FabricSetup) InstantiateCC() error {
 	// Set up chaincode policy
-	ccPolicy := cauthdsl.SignedByAnyMember([]string{setup.SubDomain + "." + setup.Domain})
+	ccPolicy := cauthdsl.SignedByAnyMember([]string{setup.PeerOrg})
 	req := resmgmt.InstantiateCCRequest{
 		Name:    setup.ChainCodeID,
 		Path:    setup.ChaincodeGoPath,

@@ -3,7 +3,7 @@ version: 1.0.0
 
 client:
 
-  organization: {{env['SUBORGNAME']}}
+  organization: {{env['PEER_ORGNAME']}}
 
   logging:
     level: info
@@ -32,20 +32,20 @@ channels:
   {{env['CHANNEL'] or "channel"}}:
     # Required. list of peers from participating orgs
     peers:
-      peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:
-      peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:
+      peer0.{{env['PEER_DOMAIN'] or "local"}}:
+      peer1.{{env['PEER_DOMAIN'] or "local"}}:
 
 #
 # list of participating organizations in this network
 #
 organizations:
   # peer org
-  {{env['SUBORGNAME']}}:
-    mspid: {{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
-    cryptoPath: peerOrganizations/{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/users/{userName}@{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/msp
+  {{env['PEER_ORGNAME']}}:
+    mspid: {{env['PEER_ORG']}}
+    cryptoPath: peerOrganizations/{{env['PEER_ORG']}}/users/{userName}@{{env['PEER_ORG']}}/msp
     peers:
-      - peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
-      - peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
+      - peer0.{{env['PEER_DOMAIN'] or "local"}}
+      - peer1.{{env['PEER_DOMAIN'] or "local"}}
 
     # [Optional]. Certificate Authorities issue certificates for identification purposes in a Fabric based
     # network. Typically certificates provisioning is done in a separate process outside of the
@@ -53,17 +53,17 @@ organizations:
     # dynamic certificate management (enroll, revoke, re-enroll). The following section is only for
     # Fabric-CA servers.
     certificateAuthorities:
-      - ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
+      - ca.{{env['CA_DOMAIN'] or "local"}}
 
   # orderer org
-# {{env['ORGNAME']}}:
-#   mspid: {{env['DOMAIN'] or "local"}}
-#   cryptoPath: ordererOrganizations/{{env['DOMAIN'] or "local"}}/users/{userName}@{{env['DOMAIN'] or "local"}}/msp
+# {{env['ORDERER_ORGNAME']}}:
+#   mspid: {{env['ORDERER_ORG']}}
+#   cryptoPath: ordererOrganizations/{{env['ORDERER_ORG']}}/users/{userName}@{{env['ORDERER_ORG']}}/msp
 #   peers:
-#     - peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
-#     - peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
+#     - peer0.{{env['PEER_DOMAIN'] or "local"}}
+#     - peer1.{{env['PEER_DOMAIN'] or "local"}}
 #   certificateAuthorities:
-#     - ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
+#     - ca.{{env['CA_DOMAIN'] or "local"}}
 
 #
 # List of orderers to send transaction and channel create/update requests to. For the time
@@ -71,25 +71,25 @@ organizations:
 # SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
 #
 orderers:
-  orderer0.{{env['DOMAIN'] or "local"}}:
+  orderer0.{{env['ORDERER_DOMAIN'] or "local"}}:
     tlsCACerts:
       # Certificate location absolute path
-      path: {{env['CRYPTO']}}/ordererOrganizations/{{env['DOMAIN'] or "local"}}/tlsca/tlsca.{{env['DOMAIN'] or "local"}}-cert.pem
+      path: {{env['CRYPTO']}}/ordererOrganizations/{{env['ORDERER_ORG']}}/tlsca/tlsca.{{env['ORDERER_DOMAIN'] or "local"}}-cert.pem
 
 #
 # List of peers to send various requests to, including endorsement, query
 # and event listener registration.
 #
 peers:
-  peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:
+  peer0.{{env['PEER_DOMAIN'] or "local"}}:
     tlsCACerts:
       # Certificate location absolute path
-      path: {{env['CRYPTO']}}/peerOrganizations/{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}-cert.pem
+      path: {{env['CRYPTO']}}/peerOrganizations/{{env['PEER_ORG']}}/tlsca/tlsca.{{env['PEER_DOMAIN'] or "local"}}-cert.pem
 
-  peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:
+  peer1.{{env['PEER_DOMAIN'] or "local"}}:
     tlsCACerts:
       # Certificate location absolute path
-      path: {{env['CRYPTO']}}/peerOrganizations/{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/tlsca/tlsca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}-cert.pem
+      path: {{env['CRYPTO']}}/peerOrganizations/{{env['PEER_ORG']}}/tlsca/tlsca.{{env['PEER_DOMAIN'] or "local"}}-cert.pem
 
 #
 # Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
@@ -97,31 +97,31 @@ peers:
 # Certificate Authority instead of Fabric-CA, in which case this section would not be specified.
 #
 certificateAuthorities:
-  ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}:
+  ca.{{env['CA_DOMAIN'] or "local"}}:
     #httpOptions:
     #  verify: false
     registrar:
       enrollId: admin
       enrollSecret: adminpw
     # [Optional] The optional name of the CA.
-    #caName: ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
+    #caName: ca.{{env['CA_DOMAIN'] or "local"}}
     tlsCACerts:
       # Certificate location absolute path
-      path: {{env['CRYPTO']}}/peerOrganizations/{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}/ca/ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}-cert.pem
+      path: {{env['CRYPTO']}}/peerOrganizations/{{env['PEER_ORG']}}/tlsca/tlsca.{{env['PEER_DOMAIN'] or "local"}}-cert.pem
 
 entityMatchers:
   peer:
-    - pattern: (\w*)peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}(\w*)
+    - pattern: (\w*)peer0.{{env['PEER_DOMAIN'] or "local"}}(\w*)
       urlSubstitutionExp: localhost:7051
       eventUrlSubstitutionExp: localhost:7053
-      sslTargetOverrideUrlSubstitutionExp: peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
-      mappedHost: peer0.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
+      sslTargetOverrideUrlSubstitutionExp: peer0.{{env['PEER_DOMAIN'] or "local"}}
+      mappedHost: peer0.{{env['PEER_DOMAIN'] or "local"}}
 
-    - pattern: (\w*)peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}(\w*)
+    - pattern: (\w*)peer1.{{env['PEER_DOMAIN'] or "local"}}(\w*)
       urlSubstitutionExp: localhost:8051
       eventUrlSubstitutionExp: localhost:8053
-      sslTargetOverrideUrlSubstitutionExp: peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
-      mappedHost: peer1.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
+      sslTargetOverrideUrlSubstitutionExp: peer1.{{env['PEER_DOMAIN'] or "local"}}
+      mappedHost: peer1.{{env['PEER_DOMAIN'] or "local"}}
 
   orderer:
     - pattern: (\w*)orderer0.{{env['DOMAIN'] or "local"}}(\w*)
@@ -130,6 +130,6 @@ entityMatchers:
       mappedHost: orderer0.{{env['DOMAIN'] or "local"}}
 
   certificateAuthorities:
-    - pattern: (\w*)ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}(\w*)
+    - pattern: (\w*)ca.{{env['PEER_DOMAIN'] or "local"}}(\w*)
       urlSubstitutionExp: http://localhost:7054
-      mappedHost: ca.{{env['SUBDOMAIN']}}.{{env['DOMAIN'] or "local"}}
+      mappedHost: ca.{{env['PEER_DOMAIN'] or "local"}}
