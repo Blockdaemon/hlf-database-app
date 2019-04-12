@@ -1,4 +1,5 @@
 config.yaml
+config.env
 Gopkg.lock
 go.sum
 hlf-database-app
