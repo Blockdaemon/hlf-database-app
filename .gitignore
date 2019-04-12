@@ -1,6 +1,10 @@
-config.yaml
-config.env
-Gopkg.lock
-hlf-database-app
+/config.yaml
+/config.env
+/Gopkg.lock
+/hlf-database-app
 .*.swp
-vendor
+/vendor
+/ca-client/config.env
+/ca-client/enroll.log
+/ca-client/crypto-config
+/ca-client/artifacts
