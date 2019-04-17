@@ -28,10 +28,6 @@ hlf-database-app: FORCE
 
 config.yaml: $(MKFILES)
 
-# jinja2 rule
-%.yaml: templates/%.yaml.in $(MKFILES)
-	eval $$(sed -e 's/#.*$$//' config.env) tools/jinja2-cli.py < $< > $@ || (rm -f $@; false)
-
 .PHONY: clean
 clean:
 	go clean
@@ -45,3 +41,4 @@ clean-cc:
 	docker image ls | grep "hlf-database-app" | cut -f 1 -d " " | $(XARGS) docker rmi
 
 .PHONY: FORCE
+-include rules.mk
