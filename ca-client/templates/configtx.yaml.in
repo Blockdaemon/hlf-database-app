@@ -1,0 +1,324 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+################################################################################
+#
+#   SECTION: Capabilities
+#
+#   - This section defines the capabilities of fabric network. This is a new
+#   concept as of v1.1.0 and should not be utilized in mixed networks with
+#   v1.0.x peers and orderers.  Capabilities define features which must be
+#   present in a fabric binary for that binary to safely participate in the
+#   fabric network.  For instance, if a new MSP type is added, newer binaries
+#   might recognize and validate the signatures from this type, while older
+#   binaries without this support would be unable to validate those
+#   transactions.  This could lead to different versions of the fabric binaries
+#   having different world states.  Instead, defining a capability for a channel
+#   informs those binaries without this capability that they must cease
+#   processing transactions until they have been upgraded.  For v1.0.x if any
+#   capabilities are defined (including a map with all capabilities turned off)
+#   then the v1.0.x peer will deliberately crash.
+#
+################################################################################
+Capabilities:
+    # Channel capabilities apply to both the orderers and the peers and must be
+    # supported by both.  Set the value of the capability to true to require it.
+    Global: &ChannelCapabilities
+        V1_1: true
+
+    # Orderer capabilities apply only to the orderers, and may be safely
+    # manipulated without concern for upgrading peers.  Set the value of the
+    # capability to true to require it.
+    Orderer: &OrdererCapabilities
+        V1_1: true
+
+    # Application capabilities apply only to the peer network, and may be safely
+    # manipulated without concern for upgrading orderers.  Set the value of the
+    # capability to true to require it.
+    Application: &ApplicationCapabilities
+        V1_2: true
+
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+
+    - &{{env.ORDERER_ORGNAME}}
+        Name: {{env.ORDERER_ORGNAME}}
+        ID: {{env.ORDERER_ORG}}
+        AdminPrincipal: Role.ADMIN
+        MSPDir: ./crypto-config/ordererOrganizations/{{env.ORDERER_ORG}}/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('{{env.ORDERER_ORG}}.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('{{env.ORDERER_ORG}}.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('{{env.ORDERER_ORG}}.admin')"
+
+    - &{{env.PEER_ORGNAME}}
+        Name: {{env.PEER_ORGNAME}}
+        ID: {{env.PEER_ORG}}
+        MSPDir: ./crypto-config/peerOrganizations/{{env.PEER_ORG}}/msp
+        AdminPrincipal: Role.ADMIN
+        AnchorPeers:
+            - Host: peer0.{{env.PEER_DOMAIN}}
+              Port: 7051
+            - Host: peer1.{{env.PEER_DOMAIN}}
+              Port: 7051
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('{{env.PEER_ORG}}.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('{{env.PEER_ORG}}.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('{{env.PEER_ORG}}.admin')"
+
+################################################################################
+#
+#   SECTION: Orderer
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for orderer related parameters.
+#
+################################################################################
+Orderer: &OrdererDefaults
+
+    # Orderer Type: The orderer implementation to start.
+    # Available types are "solo" and "kafka".
+    OrdererType: solo
+
+    Addresses:
+        - {{env.ORDERER_ID}}:7050
+
+    # Batch Timeout: The amount of time to wait before creating a batch.
+    BatchTimeout: 2s
+
+    # Batch Size: Controls the number of messages batched into a block.
+    BatchSize:
+
+        # Max Message Count: The maximum number of messages to permit in a
+        # batch.
+        MaxMessageCount: 10
+
+        # Absolute Max Bytes: The absolute maximum number of bytes allowed for
+        # the serialized messages in a batch. If the "kafka" OrdererType is
+        # selected, set 'message.max.bytes' and 'replica.fetch.max.bytes' on the
+        # Kafka brokers to a value that is larger than this one.
+        AbsoluteMaxBytes: 98 MB
+
+        # Preferred Max Bytes: The preferred maximum number of bytes allowed for
+        # the serialized messages in a batch. A message larger than the
+        # preferred max bytes will result in a batch larger than preferred max
+        # bytes.
+        PreferredMaxBytes: 512 KB
+
+    # Max Channels is the maximum number of channels to allow on the ordering
+    # network. When set to 0, this implies no maximum number of channels.
+    MaxChannels: 0
+
+    # Organizations is the list of orgs which are defined as participants on
+    # the orderer side of the network.
+    Organizations:
+
+    # Policies defines the set of policies at this level of the config tree
+    # For Orderer policies, their canonical path is
+    #   /Channel/Orderer/<PolicyName>
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        # BlockValidation specifies what signatures must be included in the block
+        # from the orderer for the peer to validate it.
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+    # Capabilities describes the orderer level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *OrdererCapabilities
+
+################################################################################
+#
+#   CHANNEL
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for channel related parameters.
+#
+################################################################################
+Channel: &ChannelDefaults
+    # Policies defines the set of policies at this level of the config tree
+    # For Channel policies, their canonical path is
+    #   /Channel/<PolicyName>
+    Policies:
+        # Who may invoke the 'Deliver' API
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        # Who may invoke the 'Broadcast' API
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        # By default, who may modify elements at this config level
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+    # Capabilities describes the channel level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *ChannelCapabilities
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters.
+#
+################################################################################
+Application: &ApplicationDefaults
+
+    # Organizations is the list of orgs which are defined as participants on
+    # the application side of the network.
+    Organizations:
+
+    # Policies defines the set of policies at this level of the config tree
+    # For Application policies, their canonical path is
+    #   /Channel/Application/<PolicyName>
+    Policies: &ApplicationDefaultPolicies
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+    # Capabilities describes the application level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+################################################################################
+#
+#   Profiles
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool. The profiles which specify consortiums
+#   are to be used for generating the orderer genesis block.  With the correct
+#   consortium members defined in the orderer genesis block, channel creation
+#   requests may be generated with only the org member names and a consortium name
+#
+################################################################################
+Profiles:
+
+    # SampleInsecureSolo defines a configuration which uses the Solo orderer,
+    # contains no MSP definitions, and allows all transactions and channel
+    # creation requests for the consortium {{env.CONSORTIUM}}.
+#   SampleInsecureSolo:
+#       <<: *ChannelDefaults
+#       Capabilities:
+#           <<: *ChannelCapabilities
+#       Orderer:
+#           <<: *OrdererDefaults
+#           Organizations:
+#               - *{{env.ORDERER_ORGNAME}}
+#           Capabilities:
+#               <<: *OrdererCapabilities
+#       Consortiums:
+#           {{env.CONSORTIUM}}:
+#               Organizations:
+#                   - *{{env.PEER_ORGNAME}}
+
+    # SampleSingleMSPSolo defines a configuration which uses the Solo orderer,
+    # and contains a single MSP definition (the MSP sampleconfig).
+    # The Consortium {{env.CONSORTIUM}} has only a single member, SampleOrg
+#   SampleSingleMSPSolo:
+    SingleMSPSolo:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *{{env.ORDERER_ORGNAME}}
+            Capabilities:
+                <<: *OrdererCapabilities
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *{{env.ORDERER_ORGNAME}}
+            Capabilities:
+                <<: *ApplicationCapabilities
+        Consortiums:
+            {{env.CONSORTIUM}}:
+                Organizations:
+                    - *{{env.PEER_ORGNAME}}
+
+    # SampleEmptyInsecureChannel defines a channel with no members
+    # and therefore no access control
+#   SampleEmptyInsecureChannel:
+#       <<: *ChannelDefaults
+#       Capabilities:
+#           <<: *ChannelCapabilities
+#       Consortium: {{env.CONSORTIUM}}
+#       Application:
+#           Organizations:
+#               - *{{env.ORDERER_ORGNAME}}
+#           Capabilities:
+#               <<: *ApplicationCapabilities
+
+    # SysTestChannel defines a channel for use with the System Test Orgs
+#   SysTestChannel:
+#       <<: *ChannelDefaults
+#       Capabilities:
+#           <<: *ChannelCapabilities
+#       Consortium: {{env.CONSORTIUM}}
+#       Application:
+#           <<: *ApplicationDefaults
+#           Organizations:
+#               - *{{env.PEER_ORGNAME}}
+#           Capabilities:
+#               <<: *ApplicationCapabilities
+
+    # SampleSingleMSPChannel defines a channel with only the sample org as a
+    # member.  It is designed to be used in conjunction with SampleSingleMSPSolo
+    # and SampleSingleMSPKafka orderer profiles
+#   SampleSingleMSPChannel:
+    SingleMSPChannel:
+        <<: *ChannelDefaults
+        Capabilities:
+            <<: *ChannelCapabilities
+        Consortium: {{env.CONSORTIUM}}
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *{{env.PEER_ORGNAME}}
+            Capabilities:
+                <<: *ApplicationCapabilities
+
+# vim: ts=8 sw=4 expandtab

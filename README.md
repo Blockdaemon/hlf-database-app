@@ -44,7 +44,18 @@ make clean-cc
 ```
 
 # To talk to real external hosts and not a local docker instance
-Comment out the `entityMatchers` section in `config.yaml`
+Set `DISABLE_MATCHERS=_` in `config.env`
+
+# To talk to blockdaemon ca-server instead of using cryptogen
+```
+cp examples/config-ca.env config.env
+```
+
+* Edit config.env to taste
+
+```
+make -C ca-client
+```
 
 # References
 Based on [this tutorial](https://chainhero.io/2018/03/tutorial-build-blockchain-app-2/)

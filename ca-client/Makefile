@@ -17,20 +17,32 @@ endif
 
 include ../config.env
 
-HLF_BINARY_URI=https://nexus.hyperledger.org/content/repositories/releases/org/hyperledger/fabric-ca
+HLF_CA_BINARY_URI:=https://nexus.hyperledger.org/content/repositories/releases/org/hyperledger/fabric-ca/hyperledger-fabric-ca
+HLF_BINARY_URI:=https://nexus.hyperledger.org/content/repositories/releases/org/hyperledger/fabric/hyperledger-fabric
 
-ORDERER_TLSCA_PEM:=crypto-config/ordererOrganizations/$(ORDERER_ORG)/tlsca/tlsca.$(ORDERER_DOMAIN)-cert.pem
-PEER_TLSCA_PEM:=crypto-config/peerOrganizations/$(PEER_ORG)/tlsca/tlsca.$(PEER_DOMAIN)-cert.pem
+CA_SERVER_URI:=https://ca-server.$(CA_DOMAIN):7054
 
-CA_SERVER_URI=https://ca-server.$(CA_DOMAIN):7054
+CRYPTO_ORDERER_DIR:=crypto-config/ordererOrganizations/$(ORDERER_ORG)
+CRYPTO_PEER_DIR:=crypto-config/peerOrganizations/$(PEER_ORG)
 
-.PHONY: all clean channel anchor-peers
+ORDERER_TLSCA_PEM:=$(CRYPTO_ORDERER_DIR)/tlsca/tlsca.$(ORDERER_DOMAIN)-cert.pem
+PEER_TLSCA_PEM:=$(CRYPTO_PEER_DIR)/tlsca/tlsca.$(PEER_DOMAIN)-cert.pem
 
-all: $(ORDERER_TLSCA_PEM) $(PEER_TLSCA_PEM) crypto-config/.msp.stamp
+ARTIFACTS:=artifacts/$(CHANNEL).channel.tx artifacts/$(CHANNEL).anchor-peers.tx
 
-crypto-config/bin/fabric-ca-client:
+CRYPTO_STAMP:=crypto-config/.msp.stamp
+
+.PHONY: all bin-clean dist-clean clean
+
+all: $(ORDERER_TLSCA_PEM) $(PEER_TLSCA_PEM) $(ARTIFACTS)
+
+bin/fabric-ca-client:
 	@mkdir -p $(dir $@)
-	@curl $(HLF_BINARY_URI)/hyperledger-fabric-ca/$(HLF_ARCH)-$(HLF_VERSION)/hyperledger-fabric-ca-$(HLF_ARCH)-$(HLF_VERSION).tar.gz | tar xz -C crypto-config
+	@curl $(HLF_CA_BINARY_URI)/$(HLF_ARCH)-$(HLF_VERSION)/hyperledger-fabric-ca-$(HLF_ARCH)-$(HLF_VERSION).tar.gz | tar xz
+
+bin/configtxgen:
+	@mkdir -p $(dir $@)
+	@curl $(HLF_BINARY_URI)/$(HLF_ARCH)-$(HLF_VERSION)/hyperledger-fabric-$(HLF_ARCH)-$(HLF_VERSION).tar.gz | tar xz
 
 crypto-config/tlsca.$(CA_DOMAIN).pem:
 	@mkdir -p $(dir $@)
@@ -41,16 +53,27 @@ crypto-config/tlsca.$(CA_DOMAIN).pem:
 	@mkdir -p $(dir $@)
 	@cp $< $@
 
-crypto-config/.msp.stamp: crypto-config/bin/fabric-ca-client
+$(CRYPTO_STAMP): bin/fabric-ca-client
 	@./enroll.sh || (tail enroll.log; false)
 	@touch $@
 
+artifacts/$(CHANNEL).channel.tx: bin/configtxgen configtx.yaml $(CRYPTO_STAMP)
+	@mkdir -p artifacts
+	bin/configtxgen -profile $(PROFILE)Channel -outputCreateChannelTx $@ -channelID $(CHANNEL)
+
+artifacts/$(CHANNEL).anchor-peers.tx: bin/configtxgen configtx.yaml
+	@mkdir -p artifacts
+	bin/configtxgen -profile $(PROFILE)Channel -outputAnchorPeersUpdate $@ -channelID $(CHANNEL) -asOrg $(PEER_ORGNAME)
+
 clean:
-	rm -rf crypto-config artifacts bin
+	rm -rf crypto-config artifacts
+
+bin-clean:
+	rm -rf bin
+
+dist-clean: clean bin-clean
 
 ../config.env:
 	$(MAKE) -C .. config.env
 
-channel:
-
-anchor-peers:
+-include ../rules.mk

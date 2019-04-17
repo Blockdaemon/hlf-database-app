@@ -18,7 +18,7 @@ config.env:
 	@cp examples/config.env config.env
 
 $(CHANFILES): FORCE
-	make -C $(WORK_DIR) channel anchor-peers
+	make -C $(WORK_DIR)
 
 fmt:
 	gofmt -w $(wildcard *.go */*.go)
