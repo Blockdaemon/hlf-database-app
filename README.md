@@ -54,7 +54,7 @@ cp examples/config-ca.env config.env
 * Edit config.env to taste
 
 ```
-make -C ca-client
+make
 ```
 
 # References
