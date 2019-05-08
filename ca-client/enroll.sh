@@ -52,7 +52,7 @@ for i in orderer peer; do
 	# No ca-server auth needed, admin is enrolled
 	server_uri="https://ca-server.${CA_DOMAIN}:${CA_PORT}"
 	# Remove existing identity if there
-	${CA_CLIENT} identity remove "${name}" -u "${server_uri}" -H "${admin_home}" >/dev/null 2>&1 || true
+	#${CA_CLIENT} identity remove "${name}" -u "${server_uri}" -H "${admin_home}" >/dev/null 2>&1 || true
 
 	# Set up id type/attrs
 	case ${i} in
