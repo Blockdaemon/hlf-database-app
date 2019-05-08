@@ -51,7 +51,7 @@ Set `DISABLE_MATCHERS=_` in `config.env`
 cp examples/config-ca.env config.env
 ```
 
-* Edit config.env to taste
+Edit `config.env` to taste, then
 
 ```
 make
