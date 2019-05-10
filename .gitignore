@@ -3,7 +3,7 @@
 /config.yaml
 /config.env
 /Gopkg.lock
-/hlf-database-app
+/hlf-database-app*
 /vendor
 
 /ca-client/bin
