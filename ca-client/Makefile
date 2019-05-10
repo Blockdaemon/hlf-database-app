@@ -10,7 +10,8 @@ ifndef HLF_ARCH
 $(error Do not know how to handle $(UNAME)-$(ARCH))
 endif
 ifeq ($(UNAME), Darwin)
-BASE64D=base64 -D
+# /usr/local/bin/base64 might support -d but if it does it won't like -D
+BASE64D=/usr/bin/base64 -D
 else
 BASE64D=base64 -d
 endif
