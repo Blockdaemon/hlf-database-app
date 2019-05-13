@@ -54,8 +54,9 @@ Edit `config.env` to taste, then add CA server admin creds to `ca-client/local.e
 CA_USER=<adminuser>
 CA_PASS=<adminpass>
 ```
-Then run make:
+Make it a bit more secure, then run make:
 ```
+chmod og-rw ca-client/local.env
 make
 ```
 
