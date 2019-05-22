@@ -10,6 +10,12 @@ Skeleton for building a Hyperledger Fabric database app
 brew install jq
 ```
 
+### debian/ubuntu
+
+```shell
+sudo apt install jq
+```
+
 ## QUICKSTART
 
 1. Follow [hlf-service-network QUICKSTART instructions](https://github.com/Blockdaemon/hlf-service-network/blob/master/README.md#quickstart)
