@@ -4,7 +4,6 @@
 /config.env
 /Gopkg.lock
 /hlf-database-app*
-/vendor
 
 /ca-client/bin
 /ca-client/crypto-config
