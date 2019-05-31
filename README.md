@@ -101,6 +101,7 @@ make
 
 * You may need to check out the repo in your `GOPATH` or chaincode installation may not work.
 * If you change `config.env`, and you are using `ca-client`, you may need to `rm -rf ca-client/crypto-config`
+* `.app get/set` may hang waiting for the transaction ack event. For some reason they go missing sometimes. CTRL-C to abort, the transaction usually went through
 
 ## References
 
