@@ -1,5 +1,7 @@
 include config.env
 
+export GO111MODULE=on
+
 ifndef GOPATH
     GOPATH:=$(HOME)/go
     export GOPATH
@@ -30,7 +32,7 @@ config.yaml: $(MKFILES)
 
 .PHONY: clean
 clean:
-	go clean
+	go clean -modcache
 	rm -rf __pycache__
 	rm -f config.yaml
 	rm -f hlf-database-app

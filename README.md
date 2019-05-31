@@ -19,13 +19,15 @@ sudo apt install jq
 ## QUICKSTART
 
 1. Follow [hlf-service-network QUICKSTART instructions](https://github.com/Blockdaemon/hlf-service-network/blob/master/README.md#quickstart)
-2. Build the code
+2. Configure environment
 
    ```shell
-   go build
+   make config.env
    ```
 
-   Edit config.env to taste (see below for Blockdaemon CA-server setup), make credentials:
+   Edit config.env to taste (see below for Blockdaemon CA-server setup)
+
+3. Build binary and make credentials:
 
    ```shell
    make
@@ -94,6 +96,11 @@ Make it a bit more secure, then run make:
 chmod og-rw ca-client/local.env
 make
 ```
+
+## Bugs
+
+* You may need to check out the repo in your `GOPATH` or chaincode installation may not work.
+* If you change `config.env`, and you are using `ca-client`, you may need to `rm -rf ca-client/crypto-config`
 
 ## References
 
