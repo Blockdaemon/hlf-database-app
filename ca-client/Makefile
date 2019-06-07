@@ -47,7 +47,7 @@ bin/configtxgen:
 
 crypto-config/tlsca.$(CA_DOMAIN).pem:
 	@mkdir -p $(dir $@)
-	@curl -sk $(CA_SERVER_URI)/api/v1/cainfo | jq -r ".result.CAChain" | $(BASE64D) > $@ || rm -f $@
+	@curl -sSk $(CA_SERVER_URI)/api/v1/cainfo | jq -r ".result.CAChain" | $(BASE64D) > $@ || rm -f $@
 	@[ -s $@ ] || (rm -f $@; echo "Failed to get pem from $(CA_SERVER_URI)/api/v1/cainfo"; false)
 
 %.pem: crypto-config/tlsca.$(CA_DOMAIN).pem
